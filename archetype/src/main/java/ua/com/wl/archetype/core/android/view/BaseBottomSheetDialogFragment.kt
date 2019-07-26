@@ -30,14 +30,14 @@ import ua.com.wl.archetype.utils.has
 
 open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
-    protected val baseActivity: BaseActivity?
+    val baseActivity: BaseActivity?
         get() = if (activity is BaseActivity) activity as BaseActivity else null
 
-    protected val supportActionBar: ActionBar? = baseActivity?.supportActionBar
+    val supportActionBar: ActionBar? = baseActivity?.supportActionBar
 
-    protected fun setSupportActionBar(toolbar: Toolbar) = baseActivity?.setSupportActionBar(toolbar)
+    fun setSupportActionBar(toolbar: Toolbar) = baseActivity?.setSupportActionBar(toolbar)
 
-    protected fun setupToolbar(
+    fun setupToolbar(
         toolbar: Toolbar,
         iconResId: Int = 0,
         iconDrawable: Drawable? = null,
@@ -57,56 +57,56 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         onNavigationClickListener?.let { toolbar.setNavigationOnClickListener(it) }
     }
 
-    protected fun startActivity(cls: Class<out Activity>, bundle: Bundle? = null, extras: Intent? = null) =
+    fun startActivity(cls: Class<out Activity>, bundle: Bundle? = null, extras: Intent? = null) =
         createActivityLaunchIntent(cls).apply {
             bundle?.let { putExtras(it) }
             extras?.let { putExtras(it) }
         }.let { startActivity(it) }
 
-    protected fun startActivityForResult(requestCode: Int, cls: Class<out Activity>, bundle: Bundle? = null, extras: Intent? = null) =
+    fun startActivityForResult(requestCode: Int, cls: Class<out Activity>, bundle: Bundle? = null, extras: Intent? = null) =
         createActivityLaunchIntent(cls).apply {
             bundle?.let { putExtras(it) }
             extras?.let { putExtras(it) }
         }.let { startActivityForResult(it, requestCode) }
 
-    protected fun createActivityLaunchIntent(cls: Class<out Activity>): Intent = Intent(activity, cls)
+    fun createActivityLaunchIntent(cls: Class<out Activity>): Intent = Intent(activity, cls)
 
     @Deprecated(
         level = DeprecationLevel.WARNING,
-        message = "BaseActivity::isServiceRunning - this method is only intended for debugging or implementing service management type user interfaces",
+        message = "BaseBottomSheetDialogFragment::isServiceRunning - this method is only intended for debugging or implementing service management type user interfaces",
         replaceWith = ReplaceWith("", ""))
-    protected fun <T : Service> isServiceRunning(serviceClass: Class<T>): Boolean =
+    fun <T : Service> isServiceRunning(serviceClass: Class<T>): Boolean =
         (activity?.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
             .getRunningServices(Int.MAX_VALUE)
             .has { serviceClass.name == it.service.className }
 
-    protected fun startService(cls: Class<out Service>): ComponentName? =
+    fun startService(cls: Class<out Service>): ComponentName? =
         activity?.startService(Intent(activity, cls))
 
-    protected fun stopService(cls: Class<out Service>): Boolean =
+    fun stopService(cls: Class<out Service>): Boolean =
         activity?.stopService(Intent(activity, cls)) ?: false
 
-    protected fun restartService(cls: Class<out Service>): ComponentName? =
+    fun restartService(cls: Class<out Service>): ComponentName? =
         stopService(cls).let { if (it) startService(cls) else null }
 
-    protected fun bindService(serviceClass: Class<out Service>, serviceConnection: ServiceConnection, flags: Int): Boolean =
+    fun bindService(serviceClass: Class<out Service>, serviceConnection: ServiceConnection, flags: Int): Boolean =
         activity?.bindService(Intent(activity, serviceClass), serviceConnection, flags) ?: false
 
-    protected fun unbindService(serviceConnection: ServiceConnection) = activity?.unbindService(serviceConnection)
+    fun unbindService(serviceConnection: ServiceConnection) = activity?.unbindService(serviceConnection)
 
-    protected fun <T : Fragment> findFragment(@IdRes containerId: Int): Optional<T> =
+    fun <T : Fragment> findFragment(@IdRes containerId: Int): Optional<T> =
         Optional.ofNullable(childFragmentManager.findFragmentById(containerId) as T)
 
-    protected fun <T : Fragment> findFragment(cls: Class<T>): Optional<T> =
+    fun <T : Fragment> findFragment(cls: Class<T>): Optional<T> =
         Optional.ofNullable(childFragmentManager.findFragmentByTag(cls.name) as T)
 
-    protected fun addFragment(@IdRes containerId: Int, fragment: Fragment, addToBackStack: Boolean = false, allowStateLoss: Boolean = true) {
+    fun addFragment(@IdRes containerId: Int, fragment: Fragment, addToBackStack: Boolean = false, allowStateLoss: Boolean = true) {
         createFragmentTransaction(containerId, fragment::class.java.name, fragment, addToBackStack).apply {
             if (allowStateLoss) commitAllowingStateLoss() else commit()
         }
     }
 
-    private fun createFragmentTransaction(@IdRes containerId: Int, tag: String, fragment: Fragment, addToBackStack: Boolean = false): FragmentTransaction =
+    fun createFragmentTransaction(@IdRes containerId: Int, tag: String, fragment: Fragment, addToBackStack: Boolean = false): FragmentTransaction =
         childFragmentManager
             .beginTransaction()
             .replace(containerId, fragment, tag).apply {
