@@ -8,10 +8,13 @@ import android.view.InflateException
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-
 import androidx.viewpager.widget.PagerAdapter
 
-class LazyBindingPagerAdapter(private val items: List<Any>) : PagerAdapter() {
+/**
+ * @author Denis Makovskyi
+ */
+
+open class LazyBindingPagerAdapter(private val items: List<Any>) : PagerAdapter() {
 
     private val variables: MutableMap<Int, Any> = hashMapOf()
     private val resources: MutableMap<Class<out Any>, ItemResource> = hashMapOf()
