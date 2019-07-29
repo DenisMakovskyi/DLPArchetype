@@ -21,6 +21,10 @@ import androidx.fragment.app.FragmentTransaction
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
+import org.greenrobot.eventbus.Subscribe
+
+import ua.com.wl.archetype.core.android.bus.Bus
+import ua.com.wl.archetype.core.android.bus.IgnoreEvent
 import ua.com.wl.archetype.utils.Optional
 import ua.com.wl.archetype.utils.has
 
@@ -34,6 +38,20 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         get() = if (activity is BaseActivity) activity as BaseActivity else null
 
     val supportActionBar: ActionBar? = baseActivity?.supportActionBar
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Bus.eventsBus?.register(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Bus.eventsBus?.unregister(this)
+    }
+
+    @Subscribe
+    fun onEvent(event: IgnoreEvent) {
+    }
 
     fun setSupportActionBar(toolbar: Toolbar) = baseActivity?.setSupportActionBar(toolbar)
 
@@ -63,7 +81,11 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
             extras?.let { putExtras(it) }
         }.let { startActivity(it) }
 
-    fun startActivityForResult(requestCode: Int, cls: Class<out Activity>, bundle: Bundle? = null, extras: Intent? = null) =
+    fun startActivityForResult(
+        requestCode: Int,
+        cls: Class<out Activity>,
+        bundle: Bundle? = null,
+        extras: Intent? = null) =
         createActivityLaunchIntent(cls).apply {
             bundle?.let { putExtras(it) }
             extras?.let { putExtras(it) }
@@ -100,13 +122,19 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
     fun <T : Fragment> findFragment(cls: Class<T>): Optional<T> =
         Optional.ofNullable(childFragmentManager.findFragmentByTag(cls.name) as T)
 
-    fun addFragment(@IdRes containerId: Int, fragment: Fragment, addToBackStack: Boolean = false, allowStateLoss: Boolean = true) {
+    fun addFragment(
+        @IdRes containerId: Int, fragment: Fragment,
+        addToBackStack: Boolean = false,
+        allowStateLoss: Boolean = true) {
         createFragmentTransaction(containerId, fragment::class.java.name, fragment, addToBackStack).apply {
             if (allowStateLoss) commitAllowingStateLoss() else commit()
         }
     }
 
-    fun createFragmentTransaction(@IdRes containerId: Int, tag: String, fragment: Fragment, addToBackStack: Boolean = false): FragmentTransaction =
+    fun createFragmentTransaction(
+        @IdRes containerId: Int, tag: String,
+        fragment: Fragment,
+        addToBackStack: Boolean = false): FragmentTransaction =
         childFragmentManager
             .beginTransaction()
             .replace(containerId, fragment, tag).apply {

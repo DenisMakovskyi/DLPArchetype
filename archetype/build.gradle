@@ -38,6 +38,7 @@ dependencies {
     def dagger_version = "2.23.2"
     def rx_java_version = "2.2.10"
     def rx_android_version = "2.1.1"
+    def event_bus_version = "3.1.1"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -69,4 +70,7 @@ dependencies {
     // RX
     implementation "io.reactivex.rxjava2:rxjava:$rx_java_version"
     implementation "io.reactivex.rxjava2:rxandroid:$rx_android_version"
+
+    // Events
+    implementation "org.greenrobot:eventbus:$event_bus_version"
 }
