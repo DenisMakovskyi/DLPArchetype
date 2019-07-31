@@ -56,8 +56,6 @@ abstract class ActivityViewModel(application: Application) : ObservableViewModel
 
     open fun onBackPressed(): Boolean = false
 
-    protected fun <T : Application> getApp(): T = getApplication() as T
-
     protected fun addDisposable(disposable: Disposable) {
         compositeDisposable.add(disposable)
     }

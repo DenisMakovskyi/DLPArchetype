@@ -52,8 +52,6 @@ abstract class FragmentViewModel(application: Application) : ObservableViewModel
 
     open fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {}
 
-    protected fun <T : Application> getApp(): T = getApplication() as T
-
     protected fun addDisposable(disposable: Disposable) {
         compositeDisposable.add(disposable)
     }
