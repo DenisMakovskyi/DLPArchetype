@@ -62,10 +62,6 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         text: String? = null,
         onNavigationClickListener: View.OnClickListener? = null) {
         setSupportActionBar(toolbar)
-        supportActionBar?.let {
-            it.setDisplayShowTitleEnabled(false)
-            it.setDisplayShowHomeEnabled(true)
-        }
         when {
             iconResId != 0 && iconDrawable == null -> toolbar.setNavigationIcon(iconResId)
             iconResId == 0 && iconDrawable != null -> toolbar.navigationIcon = iconDrawable
