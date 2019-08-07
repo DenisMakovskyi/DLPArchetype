@@ -12,10 +12,9 @@ import android.content.ServiceConnection
 import android.os.Bundle
 
 import androidx.annotation.IdRes
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
-
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 import org.greenrobot.eventbus.Subscribe
 
@@ -28,7 +27,7 @@ import ua.com.wl.archetype.utils.has
  * @author Denis Makovskyi
  */
 
-open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
+open class BaseDialogFragment: DialogFragment() {
 
     val baseActivity: BaseActivity?
         get() = if (activity is BaseActivity) activity as BaseActivity else null

@@ -2,20 +2,22 @@ package ua.com.wl.archetype.mvvm.view.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 
-import ua.com.wl.archetype.core.android.view.BaseBottomSheetDialogFragment
+import ua.com.wl.archetype.core.android.view.BaseDialogFragment
 
 /**
  * @author Denis Makovskyi
  */
 
-abstract class BindingBottomSheetDialogFragment<B : ViewDataBinding, VM : DialogFragmentViewModel> : BaseBottomSheetDialogFragment() {
+abstract class BindingDialogFragment <B : ViewDataBinding, VM : DialogFragmentViewModel> : BaseDialogFragment() {
 
     lateinit var binding: B
         private set
