@@ -1,16 +1,17 @@
 package ua.com.wl.archetype.core.android.notifications.data
 
-import android.app.Activity
 import kotlin.properties.Delegates
 
 import android.content.Intent
 import android.content.Context
 import android.app.PendingIntent
-import android.app.Service
+
+import androidx.core.app.TaskStackBuilder
+import androidx.core.os.bundleOf
 
 import ua.com.wl.archetype.core.android.notifications.dsl.IntentionMarker
 import ua.com.wl.archetype.core.android.notifications.dsl.NotificationMarker
-import ua.com.wl.archetype.utils.isJClassAssignableFrom
+import ua.com.wl.archetype.utils.toArray
 
 data class Intention(
     val autoCancel: Boolean,
@@ -42,33 +43,24 @@ class PendingIntentBuilder {
     var from: From = From.Service
     var context: Context by Delegates.notNull()
     var requestCode: Int = 100
-    var intentClass: Class<*> by Delegates.notNull()
-    var intentFlags: Int = Intent.FLAG_ACTIVITY_NEW_TASK
-    val intentExtras: Map<String, Any>? = null
+    var intentClass: Class<*>? = null
+    var parentStack: List<Class<*>>? = null
+    var intentAction: String? = null
+    var intentFlags: List<Int>? = null
     var intentCategories: List<String>? = null
-    val pendingIntentFlags: Int = PendingIntent.FLAG_UPDATE_CURRENT
+    var intentExtras: Map<String, Any?>? = null
+    var pendingIntentFlags: Int = PendingIntent.FLAG_UPDATE_CURRENT
 
     fun build(init: PendingIntentBuilder.() -> Unit): PendingIntent {
         init()
-        if (!isJClassAssignableFrom(
-                intentClass,
-                Service::class.java, Activity::class.java)) {
-            throw IllegalArgumentException("Intent class must be assignable either Service or Activity")
-        }
-        val intent = Intent(context, intentClass).apply {
-            addFlags(intentFlags)
-            intentExtras?.let { extras ->
-                for (extra in extras) {
-                    when (extra.value) {
-                        is Boolean -> putExtra(extra.key, extra.value as Boolean)
-                        is Byte -> putExtra(extra.key, extra.value as Byte)
-                        is Char -> putExtra(extra.key, extra.value as Char)
-                        is Int -> putExtra(extra.key, extra.value as Int)
-                        is Long -> putExtra(extra.key, extra.value as Long)
-                        is Float -> putExtra(extra.key, extra.value as Float)
-                        is Double -> putExtra(extra.key, extra.value as Double)
-                        is String -> putExtra(extra.key, extra.value as String)
-                    }
+        val intent = if (intentClass == null) Intent() else Intent(context, intentClass)
+        intent.apply {
+            intentAction?.let {
+                action = it
+            }
+            intentFlags?.let { flags ->
+                for (flag in flags) {
+                    addFlags(flag)
                 }
             }
             intentCategories?.let { categories ->
@@ -76,10 +68,26 @@ class PendingIntentBuilder {
                     addCategory(category)
                 }
             }
+            intentExtras?.let { extras ->
+                putExtras(bundleOf(*extras.toArray()))
+            }
         }
         return when (from) {
             From.Service -> PendingIntent.getService(context, requestCode, intent, pendingIntentFlags)
-            From.Activity -> PendingIntent.getActivity(context, requestCode, intent, pendingIntentFlags)
+            From.Activity -> {
+                parentStack?.let { stack ->
+                    TaskStackBuilder.create(context).run {
+                        for (item in stack) {
+                            addParentStack(item)
+                        }
+                        addNextIntentWithParentStack(intent)
+                        getPendingIntent(requestCode, pendingIntentFlags)
+                    }
+
+                } ?: run {
+                    PendingIntent.getActivity(context, requestCode, intent, pendingIntentFlags)
+                }
+            }
         }
     }
 }

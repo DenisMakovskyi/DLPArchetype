@@ -3,6 +3,9 @@ package ua.com.wl.archetype.core.android.notifications.data
 import android.graphics.Bitmap
 import android.app.Notification
 
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+
 import androidx.annotation.IntRange
 
 import ua.com.wl.archetype.core.android.notifications.dsl.NotificationMarker
@@ -12,15 +15,15 @@ import ua.com.wl.archetype.core.android.notifications.dsl.NotificationMarker
  */
 
 data class Icons(
-    val smallIcon: Int,
-    val smallTint: Int,
+    @DrawableRes val smallIcon: Int,
+    @ColorRes val smallTint: Int,
     val largeIcon: Bitmap?,
     @IntRange(from = 0, to = 2) val badgeIconType: Int) {
 
     @NotificationMarker
     class Builder(
-        var smallIcon: Int = 0,
-        var smallTint: Int = 0,
+        @DrawableRes var smallIcon: Int = 0,
+        @ColorRes var smallTint: Int = 0,
         var largeIcon: Bitmap? = null,
         @IntRange(from = 0, to = 2) var badgeIconType: Int = Notification.BADGE_ICON_NONE) {
 

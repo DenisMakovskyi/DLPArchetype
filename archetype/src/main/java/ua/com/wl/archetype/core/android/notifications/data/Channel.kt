@@ -29,7 +29,7 @@ data class Channel(
         var channelDescription: String? = null,
         var groupId: String? = null,
         var groupName: String? = null,
-        val groupDescription: String? = null) {
+        var groupDescription: String? = null) {
 
         fun build(init: Builder.() -> Unit): Channel {
             init()

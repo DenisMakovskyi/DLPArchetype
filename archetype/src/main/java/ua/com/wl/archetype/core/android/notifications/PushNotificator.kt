@@ -28,34 +28,30 @@ object PushNotificator {
             // - icons
             notification.icons.let { icons ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    if (icons.smallIcon > 0) {
-                        setSmallIcon(icons.smallIcon)
-                    }
                     if (icons.smallTint > 0) {
                         color = ContextCompat.getColor(context, icons.smallTint)
                     }
-
-                } else {
+                }
+                if (icons.smallIcon > 0) {
                     setSmallIcon(icons.smallIcon)
                 }
                 icons.largeIcon?.let { icon -> setLargeIcon(icon) }
             }
             // - content
-            var textStyle: NotificationCompat.BigTextStyle? = null
-            notification.content.info?.let { setContentInfo(it) }
-            notification.content.title?.let { title ->
-                textStyle = NotificationCompat.BigTextStyle().also { style -> style.setBigContentTitle(title) }
-                setContentTitle(title)
-            } ?: run {
-                textStyle = null
+            val textStyle = NotificationCompat.BigTextStyle()
+            notification.content.info?.let {
+                setContentInfo(it)
+                textStyle.setSummaryText(it)
             }
-            notification.content.message?.let { message ->
-                textStyle = NotificationCompat.BigTextStyle().also { style -> style.bigText(message) }
-                setContentText(message)
-            } ?: run {
-                textStyle = null
+            notification.content.title?.let {
+                setContentTitle(it)
+                textStyle.setBigContentTitle(it)
             }
-            textStyle?.let { setStyle(it) }
+            notification.content.message?.let {
+                setContentText(it)
+                textStyle.bigText(it)
+            }
+            setStyle(textStyle)
             // - actions
             notification.content.actions?.let { actions ->
                 for (action in actions) {
@@ -130,7 +126,7 @@ object PushNotificator {
                 } ?: enableLights(false)
             }
 
-    @TargetApi(Build.VERSION_CODES.O)
+    @TargetApi(Build.VERSION_CODES.P)
     fun createChannelGroup(channel: Channel): NotificationChannelGroup? =
         if (channel.groupId != null && channel.groupName != null) {
             NotificationChannelGroup(channel.groupId, channel.groupName).apply {
