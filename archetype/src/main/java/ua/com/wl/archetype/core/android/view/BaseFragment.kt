@@ -55,18 +55,35 @@ open class BaseFragment : Fragment() {
 
     fun setupToolbar(
         toolbar: Toolbar,
+        useLogo: Boolean = false,
+        showHome: Boolean = false,
+        homeAsUp: Boolean = false,
+        showTitle: Boolean = false,
+        showCustom: Boolean = false,
         iconResId: Int = 0,
         iconDrawable: Drawable? = null,
-        text: String? = null,
+        toolbarTitleText: String? = null,
         onNavigationClickListener: View.OnClickListener? = null) {
         setSupportActionBar(toolbar)
-        when {
-            iconResId != 0 && iconDrawable == null -> toolbar.setNavigationIcon(iconResId)
-            iconResId == 0 && iconDrawable != null -> toolbar.navigationIcon = iconDrawable
-            else -> toolbar.navigationIcon = null
+        supportActionBar?.apply {
+            setDisplayUseLogoEnabled(useLogo)
+            setDisplayShowHomeEnabled(showHome)
+            setDisplayHomeAsUpEnabled(homeAsUp)
+            setDisplayShowTitleEnabled(showTitle)
+            setDisplayShowCustomEnabled(showCustom)
         }
-        text?.let { toolbar.title = it }
-        onNavigationClickListener?.let { toolbar.setNavigationOnClickListener(it) }
+        if (iconResId != 0) {
+            toolbar.setNavigationIcon(iconResId)
+        }
+        iconDrawable?.let {
+            toolbar.navigationIcon = it
+        }
+        toolbarTitleText?.let {
+            toolbar.title = it
+        }
+        onNavigationClickListener?.let {
+            toolbar.setNavigationOnClickListener(it)
+        }
     }
 
     fun startActivity(cls: Class<out Activity>, bundle: Bundle? = null, extras: Intent? = null) =
