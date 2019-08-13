@@ -95,21 +95,39 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         Optional.ofNullable(childFragmentManager.findFragmentByTag(cls.name) as T)
 
     fun addFragment(
-        @IdRes containerId: Int, fragment: Fragment,
+        @IdRes containerId: Int,
+        cls: Class<out Fragment>,
+        arguments: Bundle? = null,
         addToBackStack: Boolean = false,
-        allowStateLoss: Boolean = true) {
-        createFragmentTransaction(containerId, fragment::class.java.name, fragment, addToBackStack).apply {
+        allowStateLoss: Boolean = true,
+        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE) {
+        addFragment(containerId, cls.newInstance(), arguments, addToBackStack, allowStateLoss, transactionType)
+    }
+
+    fun addFragment(
+        @IdRes containerId: Int,
+        fragment: Fragment,
+        arguments: Bundle? = null,
+        addToBackStack: Boolean = false,
+        allowStateLoss: Boolean = true,
+        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE) {
+        fragment.apply { arguments?.let { setArguments(arguments) } }
+        createFragmentTransaction(containerId, fragment::class.java.name, fragment, addToBackStack, transactionType).apply {
             if (allowStateLoss) commitAllowingStateLoss() else commit()
         }
     }
 
     fun createFragmentTransaction(
-        @IdRes containerId: Int, tag: String,
+        @IdRes containerId: Int,
+        tag: String,
         fragment: Fragment,
-        addToBackStack: Boolean = false): FragmentTransaction =
-        childFragmentManager
-            .beginTransaction()
-            .replace(containerId, fragment, tag).apply {
-                if (addToBackStack) addToBackStack(tag)
+        addToBackStack: Boolean = false,
+        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE): FragmentTransaction =
+        childFragmentManager.beginTransaction().apply {
+            when (transactionType) {
+                FragmentTransactionType.ADD -> add(containerId, fragment, tag)
+                FragmentTransactionType.REPLACE -> replace(containerId, fragment, tag)
             }
+            if (addToBackStack) addToBackStack(tag)
+        }
 }
