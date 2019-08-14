@@ -9,7 +9,6 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.paging.PagedListAdapter
-
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
@@ -17,8 +16,10 @@ import androidx.recyclerview.widget.RecyclerView
  * @author Denis Makovskyi
  */
 
-abstract class LazyBindingPagedAdapter(diffCallback: DiffUtil.ItemCallback<Any>) :
-    PagedListAdapter<Any, LazyBindingPagedAdapter.ViewHolder>(diffCallback) {
+abstract class LazyBindingPagedAdapter<T : Any>(
+    diffCallback: DiffUtil.ItemCallback<T>
+
+) : PagedListAdapter<T, LazyBindingPagedAdapter<T>.ViewHolder>(diffCallback) {
 
     companion object {
 
@@ -26,7 +27,7 @@ abstract class LazyBindingPagedAdapter(diffCallback: DiffUtil.ItemCallback<Any>)
     }
 
     private val variables: MutableMap<Int, Any> = hashMapOf()
-    private val resources: MutableMap<Class<out Any>, ItemResource> = hashMapOf()
+    private val resources: MutableMap<Class<T>, ItemResource> = hashMapOf()
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
@@ -63,7 +64,7 @@ abstract class LazyBindingPagedAdapter(diffCallback: DiffUtil.ItemCallback<Any>)
         variables[bindingId] = obj
     }
 
-    fun registerResource(cls: Class<out Any>, @LayoutRes layoutId: Int, bindingId: Int) {
+    fun registerResource(cls: Class<T>, @LayoutRes layoutId: Int, bindingId: Int) {
         resources[cls] = ItemResource(layoutId, bindingId)
     }
 

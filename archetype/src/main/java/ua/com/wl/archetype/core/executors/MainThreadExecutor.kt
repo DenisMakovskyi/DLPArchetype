@@ -1,8 +1,9 @@
 package ua.com.wl.archetype.core.executors
 
+import java.util.concurrent.Executor
+
 import android.os.Handler
 import android.os.Looper
-import java.util.concurrent.Executor
 
 /**
  * @author Denis Makovskyi
@@ -12,10 +13,7 @@ class MainThreadExecutor : Executor {
 
     companion object {
 
-        private val INSTANCE: MainThreadExecutor = MainThreadExecutor()
-
-        @JvmStatic
-        fun getInstance(): MainThreadExecutor = INSTANCE
+        val INSTANCE: MainThreadExecutor = MainThreadExecutor()
     }
 
     private val handler: Handler = Handler(Looper.getMainLooper())
