@@ -20,10 +20,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 
-import org.greenrobot.eventbus.Subscribe
-
-import ua.com.wl.archetype.core.android.bus.Bus
-import ua.com.wl.archetype.core.android.bus.IgnoreEvent
 import ua.com.wl.archetype.utils.Optional
 import ua.com.wl.archetype.utils.has
 
@@ -37,20 +33,6 @@ open class BaseActivity : AppCompatActivity() {
         init {
             AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Bus.eventsBus?.register(this)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Bus.eventsBus?.unregister(this)
-    }
-
-    @Subscribe
-    fun onEvent(event: IgnoreEvent) {
     }
 
     fun setupToolbar(

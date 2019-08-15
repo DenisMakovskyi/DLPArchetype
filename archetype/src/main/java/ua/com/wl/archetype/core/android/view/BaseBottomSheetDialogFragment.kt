@@ -17,10 +17,6 @@ import androidx.fragment.app.FragmentTransaction
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-import org.greenrobot.eventbus.Subscribe
-
-import ua.com.wl.archetype.core.android.bus.Bus
-import ua.com.wl.archetype.core.android.bus.IgnoreEvent
 import ua.com.wl.archetype.utils.Optional
 import ua.com.wl.archetype.utils.has
 
@@ -32,20 +28,6 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     val baseActivity: BaseActivity?
         get() = if (activity is BaseActivity) activity as BaseActivity else null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Bus.eventsBus?.register(this)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Bus.eventsBus?.unregister(this)
-    }
-
-    @Subscribe
-    fun onEvent(event: IgnoreEvent) {
-    }
 
     fun startActivity(cls: Class<out Activity>, bundle: Bundle? = null, extras: Intent? = null) =
         createActivityLaunchIntent(cls).apply {

@@ -15,8 +15,7 @@ import ua.com.wl.archetype.utils.concurrentHashMapOf
 
 class LiveEvent<T>: MutableLiveData<T>() {
 
-    private val pendingObservers: ConcurrentHashMap<Observer<in T>, Pair<Observer<in T>, AtomicBoolean>> =
-        concurrentHashMapOf()
+    private val pendingObservers: ConcurrentHashMap<Observer<in T>, Pair<Observer<in T>, AtomicBoolean>> = concurrentHashMapOf()
 
     override fun observe(owner: LifecycleOwner, observer: Observer<in T>) {
         val interceptor: Observer<in T> = object : Observer<T> {

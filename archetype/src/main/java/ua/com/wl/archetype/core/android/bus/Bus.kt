@@ -1,18 +1,17 @@
 package ua.com.wl.archetype.core.android.bus
 
-import org.greenrobot.eventbus.EventBus
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
+
+/**
+ * @author Denis Makovskyi
+ */
 
 object Bus {
+    
+    val publisher = PublishSubject.create<BusEvent>()
 
-    var eventsBus: EventBus? = null
-        get() {
-            if (field == null) {
-                synchronized(this) {
-                    if (field == null) {
-                        field = EventBus.getDefault()
-                    }
-                }
-            }
-            return field
-        }
+    fun send(event: BusEvent) = publisher.onNext(event)
+    
+    fun toObservable(): Observable<BusEvent> = publisher
 }
