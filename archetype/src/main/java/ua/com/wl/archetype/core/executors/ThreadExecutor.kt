@@ -19,7 +19,7 @@ interface ThreadExecutor : Executor {
 
         private val threadPoolExecutor: ThreadPoolExecutor = ThreadPoolExecutor(
             Runtime.getRuntime().availableProcessors(), Int.MAX_VALUE,
-            10L, TimeUnit.SECONDS,
+            TimeUnit.SECONDS.toSeconds(10), TimeUnit.SECONDS,
             LinkedBlockingQueue<Runnable>(), JobThreadFactory())
 
         override fun execute(command: Runnable?) {

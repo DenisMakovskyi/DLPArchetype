@@ -19,7 +19,7 @@ import ua.com.wl.archetype.mvvm.ObservableViewModel
  * @author Denis Makovskyi
  */
 
-abstract class ActivityViewModel(application: Application) : ObservableViewModel(application), LifecycleObserver {
+open class ActivityViewModel(application: Application) : ObservableViewModel(application), LifecycleObserver {
 
     val liveBus = LiveBus()
     private val compositeDisposable = CompositeDisposable()
