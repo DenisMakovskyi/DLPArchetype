@@ -18,7 +18,31 @@ import ua.com.wl.archetype.utils.whenIndex
  * @author Denis Makovskyi
  */
 
-abstract class LazyBindingAdapter : RecyclerView.Adapter<LazyBindingAdapter.ViewHolder>() {
+open class LazyBindingAdapter : RecyclerView.Adapter<LazyBindingAdapter.ViewHolder>() {
+
+    interface OnClickListener<in T> {
+
+        fun onClick(position: Int, view: View, item: T)
+    }
+
+    interface PaginationListener {
+
+        fun onNextPage(page: Int)
+    }
+
+    inner class ItemResource(@LayoutRes layoutId: Int, bindingId: Int) {
+
+        var layoutId: Int = layoutId
+            private set
+        var bindingId: Int = bindingId
+            private set
+    }
+
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+        var binding: ViewDataBinding? = DataBindingUtil.bind(itemView)
+            private set
+    }
 
     companion object {
 
@@ -29,11 +53,14 @@ abstract class LazyBindingAdapter : RecyclerView.Adapter<LazyBindingAdapter.View
     private val variables: MutableMap<Int, Any> = hashMapOf()
     private val resources: MutableMap<Class<out Any>, ItemResource> = hashMapOf()
 
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        super.onAttachedToRecyclerView(recyclerView)
-        onRegisterVariables()
-        onRegisterResources()
-    }
+    private var pagination: Boolean = false
+    private var initialPage: Int = 0
+    private var visibleThreshold: Int = 0
+    private var paginationModel: Any? = null
+    private var paginationListener: PaginationListener? = null
+
+    private var endlessScrollListener: EndlessScrollListener? = null
+    private var onLoadMoreListener: EndlessScrollListener.OnLoadMoreListener? = null
 
     override fun getItemViewType(position: Int): Int =
         getItemResource(getItem(position))?.layoutId ?: VIEW_TYPE_UNDEFINED
@@ -57,16 +84,47 @@ abstract class LazyBindingAdapter : RecyclerView.Adapter<LazyBindingAdapter.View
 
     override fun getItemCount(): Int = items.size
 
-    abstract fun onRegisterVariables()
-
-    abstract fun onRegisterResources()
-
-    fun registerVariable(bindingId: Int, obj: Any) {
-        variables[bindingId] = obj
+    fun withVariable(bindingId: Int, obj: Any) {
+        this.variables[bindingId] = obj
     }
 
-    fun registerResource(cls: Class<out Any>, @LayoutRes layoutId: Int, bindingId: Int) {
-        resources[cls] = ItemResource(layoutId, bindingId)
+    fun withResource(cls: Class<out Any>, @LayoutRes layoutId: Int, bindingId: Int) {
+        this.resources[cls] = ItemResource(layoutId, bindingId)
+    }
+
+    fun withPagination(
+        initialPage: Int = 0,
+        visibleThreshold: Int = 0,
+        paginationModel: Any,
+        paginationLayoutId: Int,
+        paginationBindingId: Int,
+        paginationListener: PaginationListener) {
+        this.pagination = true
+        this.initialPage = initialPage
+        this.visibleThreshold = visibleThreshold
+        this.paginationModel = paginationModel
+        this.paginationListener = paginationListener
+        withResource(paginationModel::class.java, paginationLayoutId, paginationBindingId)
+    }
+
+    fun withRecyclerView(view: RecyclerView) {
+        if (pagination) {
+            onLoadMoreListener = object: EndlessScrollListener.OnLoadMoreListener {
+                override fun onLoadMore(page: Int) {
+                    paginationListener?.onNextPage(page)
+                }
+
+                override fun onLoadingStateChanged(isLoading: Boolean) {
+                    if (isLoading) notifyLoadMore() else notifyMoreLoaded()
+                }
+            }
+            endlessScrollListener = EndlessScrollListener(
+                layoutManager = requireNotNull(view.layoutManager),
+                startPage = initialPage,
+                visibleThreshold = visibleThreshold,
+                onLoadMoreListener = requireNotNull(onLoadMoreListener))
+        }
+        view.adapter = this
     }
 
     fun isEmpty(): Boolean = items.isEmpty()
@@ -78,6 +136,8 @@ abstract class LazyBindingAdapter : RecyclerView.Adapter<LazyBindingAdapter.View
     fun getItemResource(item: Any): ItemResource? = resources.entries.find { it.key.isInstance(item) }?.value
 
     fun <T : Any> getItem(position: Int): T = items[position] as T
+
+    fun <T : Any> getLastItem(): T = items[items.lastIndex] as T
 
     fun <T : Any> getItems(cls: Class<T>): List<T> {
         val mutableList: MutableList<T> = mutableListOf()
@@ -92,22 +152,26 @@ abstract class LazyBindingAdapter : RecyclerView.Adapter<LazyBindingAdapter.View
     fun <T : Any> notifyData(anotherItems: List<T>) {
         items.clear()
         items.addAll(anotherItems)
+        endlessScrollListener?.onLoadingFinished()
         notifyDataSetChanged()
     }
 
     fun <T : Any> addItem(item: T) {
         items.add(item)
+        endlessScrollListener?.onLoadingFinished()
         notifyItemInserted(items.lastIndex)
     }
 
     fun <T : Any> addItem(position: Int, item: T) {
         items.add(position, item)
+        endlessScrollListener?.onLoadingFinished()
         notifyItemInserted(position)
     }
 
     fun <T : Any> addItems(newItems: List<T>) {
         val positionStart = items.size + 1
         items.addAll(newItems)
+        endlessScrollListener?.onLoadingFinished()
         notifyItemRangeInserted(positionStart, newItems.size)
     }
 
@@ -145,22 +209,15 @@ abstract class LazyBindingAdapter : RecyclerView.Adapter<LazyBindingAdapter.View
         notifyDataSetChanged()
     }
 
-    interface OnClickListener<in T> {
-
-        fun onClick(position: Int, view: View, item: T)
+    private fun notifyLoadMore() {
+        paginationModel?.let { addItem(it) }
     }
 
-    inner class ItemResource(@LayoutRes layoutId: Int, bindingId: Int) {
-
-        var layoutId: Int = layoutId
-            private set
-        var bindingId: Int = bindingId
-            private set
-    }
-
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        var binding: ViewDataBinding? = DataBindingUtil.bind(itemView)
-            private set
+    private fun notifyMoreLoaded() {
+        paginationModel?.let {
+            if (it == getLastItem()) {
+                removeItem(it)
+            }
+        }
     }
 }
