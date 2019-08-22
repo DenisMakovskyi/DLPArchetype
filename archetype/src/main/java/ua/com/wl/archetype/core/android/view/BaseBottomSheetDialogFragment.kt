@@ -65,8 +65,8 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
     fun restartService(cls: Class<out Service>): ComponentName? =
         stopService(cls).let { if (it) startService(cls) else null }
 
-    fun bindService(serviceClass: Class<out Service>, serviceConnection: ServiceConnection, flags: Int): Boolean =
-        activity?.bindService(Intent(activity, serviceClass), serviceConnection, flags) ?: false
+    fun bindService(cls: Class<out Service>, serviceConnection: ServiceConnection, flags: Int): Boolean =
+        activity?.bindService(Intent(activity, cls), serviceConnection, flags) ?: false
 
     fun unbindService(serviceConnection: ServiceConnection) = activity?.unbindService(serviceConnection)
 
@@ -82,9 +82,8 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         arguments: Bundle? = null,
         addToBackStack: Boolean = false,
         allowStateLoss: Boolean = true,
-        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE) {
+        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE) =
         addFragment(containerId, cls.newInstance(), arguments, addToBackStack, allowStateLoss, transactionType)
-    }
 
     fun addFragment(
         @IdRes containerId: Int,
@@ -106,7 +105,7 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         addToBackStack: Boolean = false,
         transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE): FragmentTransaction =
         childFragmentManager.beginTransaction().apply {
-            when (transactionType) {
+            when(transactionType) {
                 FragmentTransactionType.ADD -> add(containerId, fragment, tag)
                 FragmentTransactionType.REPLACE -> replace(containerId, fragment, tag)
             }

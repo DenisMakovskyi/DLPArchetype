@@ -24,6 +24,7 @@ object Injector {
             activity::class.annotations
                 .find { it.annotationClass == Injectable::class }
                 ?.let { AndroidInjection.inject(activity) }
+            //--
             if (activity is FragmentActivity && activity is HasSupportFragmentInjector) {
                 activity.supportFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
                     override fun onFragmentCreated(fragmentManager: FragmentManager, fragment: Fragment, savedInstanceState: Bundle?) {

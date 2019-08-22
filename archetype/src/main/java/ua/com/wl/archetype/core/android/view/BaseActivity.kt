@@ -100,8 +100,8 @@ open class BaseActivity : AppCompatActivity() {
     fun restartService(cls: Class<out Service>): ComponentName? =
         stopService(cls).let { if (it) startService(cls) else null }
 
-    fun bindService(serviceClass: Class<out Service>, serviceConnection: ServiceConnection, flags: Int): Boolean =
-        bindService(Intent(this, serviceClass), serviceConnection, flags)
+    fun bindService(cls: Class<out Service>, serviceConnection: ServiceConnection, flags: Int): Boolean =
+        bindService(Intent(this, cls), serviceConnection, flags)
 
     fun <T : Fragment> findFragment(@IdRes containerId: Int): Optional<T> =
         Optional.ofNullable(supportFragmentManager.findFragmentById(containerId) as T)
@@ -115,9 +115,8 @@ open class BaseActivity : AppCompatActivity() {
         arguments: Bundle? = null,
         addToBackStack: Boolean = false,
         allowStateLoss: Boolean = true,
-        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE) {
+        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE) =
         addFragment(containerId, cls.newInstance(), arguments, addToBackStack, allowStateLoss, transactionType)
-    }
 
     fun addFragment(
         @IdRes containerId: Int,
@@ -139,7 +138,7 @@ open class BaseActivity : AppCompatActivity() {
         addToBackStack: Boolean = false,
         transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE): FragmentTransaction =
         supportFragmentManager.beginTransaction().apply {
-            when (transactionType) {
+            when(transactionType) {
                 FragmentTransactionType.ADD -> add(containerId, fragment, tag)
                 FragmentTransactionType.REPLACE -> replace(containerId, fragment, tag)
             }

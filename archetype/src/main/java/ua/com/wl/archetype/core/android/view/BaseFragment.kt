@@ -100,8 +100,8 @@ open class BaseFragment : Fragment() {
     fun restartService(cls: Class<out Service>): ComponentName? =
         stopService(cls).let { if (it) startService(cls) else null }
 
-    fun bindService(serviceClass: Class<out Service>, serviceConnection: ServiceConnection, flags: Int): Boolean =
-        activity?.bindService(Intent(activity, serviceClass), serviceConnection, flags) ?: false
+    fun bindService(cls: Class<out Service>, serviceConnection: ServiceConnection, flags: Int): Boolean =
+        activity?.bindService(Intent(activity, cls), serviceConnection, flags) ?: false
 
     fun unbindService(serviceConnection: ServiceConnection) = activity?.unbindService(serviceConnection)
 
@@ -117,9 +117,8 @@ open class BaseFragment : Fragment() {
         arguments: Bundle? = null,
         addToBackStack: Boolean = false,
         allowStateLoss: Boolean = true,
-        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE) {
+        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE) =
         addFragment(containerId, cls.newInstance(), arguments, addToBackStack, allowStateLoss, transactionType)
-    }
 
     fun addFragment(
         @IdRes containerId: Int,

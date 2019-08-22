@@ -14,7 +14,8 @@ import androidx.lifecycle.ViewModelProvider
  */
 
 @Singleton
-open class ViewModelFactory @Inject constructor(private val creators: Map<Class<out ViewModel>, Provider<ViewModel>>): ViewModelProvider.Factory {
+open class ViewModelFactory @Inject constructor(
+    private val creators: Map<Class<out ViewModel>, Provider<ViewModel>>): ViewModelProvider.Factory {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         var creator = creators[modelClass]
