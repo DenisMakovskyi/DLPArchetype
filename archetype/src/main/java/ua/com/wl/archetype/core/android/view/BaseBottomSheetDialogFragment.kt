@@ -71,10 +71,10 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
     fun unbindService(serviceConnection: ServiceConnection) = activity?.unbindService(serviceConnection)
 
     fun <T : Fragment> findFragment(@IdRes containerId: Int): Optional<T> =
-        Optional.ofNullable(childFragmentManager.findFragmentById(containerId) as T)
+        Optional.ofNullable(childFragmentManager.findFragmentById(containerId) as T?)
 
     fun <T : Fragment> findFragment(cls: Class<T>): Optional<T> =
-        Optional.ofNullable(childFragmentManager.findFragmentByTag(cls.name) as T)
+        Optional.ofNullable(childFragmentManager.findFragmentByTag(cls.name) as T?)
 
     fun addFragment(
         @IdRes containerId: Int,

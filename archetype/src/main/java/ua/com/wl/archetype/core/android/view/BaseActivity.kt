@@ -104,10 +104,10 @@ open class BaseActivity : AppCompatActivity() {
         bindService(Intent(this, cls), serviceConnection, flags)
 
     fun <T : Fragment> findFragment(@IdRes containerId: Int): Optional<T> =
-        Optional.ofNullable(supportFragmentManager.findFragmentById(containerId) as T)
+        Optional.ofNullable(supportFragmentManager.findFragmentById(containerId) as T?)
 
     fun <T : Fragment> findFragment(cls: Class<T>): Optional<T> =
-        Optional.ofNullable(supportFragmentManager.findFragmentByTag(cls.name) as T)
+        Optional.ofNullable(supportFragmentManager.findFragmentByTag(cls.name) as T?)
 
     fun addFragment(
         @IdRes containerId: Int,
