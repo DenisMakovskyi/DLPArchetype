@@ -1,0 +1,32 @@
+private object LibraryVersion {
+    const val APP_COMPACT               = "1.1.0-rc01"
+    const val MATERIAL                  = "1.1.0-alpha09"
+    const val CONSTRAINT_LAYOUT         = "1.1.3"
+    const val CORE_KTX                  = "1.2.0-alpha03"
+    const val LIFECYCLE                 = "2.2.0-alpha03"
+    const val PAGING                    = "2.1.0"
+    const val DAGGER                    = "2.23.2"
+    const val RX_JAVA                   = "2.2.10"
+    const val RX_ANDROID                = "2.1.1"
+}
+
+object LibraryDependency {
+    const val KOTLIN                    = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Core.KOTLIN}"
+    const val KOTLIN_REFLECT            = "org.jetbrains.kotlin:kotlin-reflect:${Core.KOTLIN}"
+    const val APP_COMPACT               = "androidx.appcompat:appcompat:${LibraryVersion.APP_COMPACT}"
+    const val CONSTRAINT_LAYOUT         = "com.android.support.constraint:constraint-layout:${LibraryVersion.CONSTRAINT_LAYOUT}"
+    const val MATERIAL                  = "com.google.android.material:material:${LibraryVersion.MATERIAL}"
+    const val COROUTINES_CORE           = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Core.COROUTINES_ANDROID}"
+    const val COROUTINES_ANDROID        = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Core.COROUTINES_ANDROID}"
+    const val CORE_KTX                  = "androidx.core:core-ktx:${LibraryVersion.CORE_KTX}"
+    const val LIFECYCLE_COMPILER        = "androidx.lifecycle:lifecycle-compiler:${LibraryVersion.LIFECYCLE}"
+    const val LIFECYCLE_VIEW_MODEL_KTX  = "androidx.lifecycle:lifecycle-viewmodel-ktx:${LibraryVersion.LIFECYCLE}"
+    const val LIVEDATA                  = "androidx.lifecycle:lifecycle-livedata:${LibraryVersion.LIFECYCLE}"
+    const val PAGING                    = "androidx.paging:paging-runtime-ktx:${LibraryVersion.PAGING}"
+    const val DAGGER_ANDROID            = "com.google.dagger:dagger-android:${LibraryVersion.DAGGER}"
+    const val DAGGER_ANDROID_SUPPORT    = "com.google.dagger:dagger-android-support:${LibraryVersion.DAGGER}"
+    const val DAGGER_ANDROID_PROCESSOR  = "com.google.dagger:dagger-android-processor:${LibraryVersion.DAGGER}"
+    const val RX_JAVA                   = "io.reactivex.rxjava2:rxjava:${LibraryVersion.RX_JAVA}"
+    const val RX_ANDROID                = "io.reactivex.rxjava2:rxandroid:${LibraryVersion.RX_ANDROID}"
+    const val DATABINDING_COMPILER      = "androidx.databinding:databinding-compiler:${GradlePlugin.ANDROID_GRADLE}"
+}
