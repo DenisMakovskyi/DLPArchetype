@@ -34,4 +34,8 @@ class Optional<T> private constructor(var value: T? = null) {
     fun ifPresentOrThrow(block: (T) -> Unit) {
         value?.let { block(it) } ?: throw NoSuchElementException("No value present")
     }
+
+    fun <R> ifPresentOrDefault(block: (T) -> R, otherwise: () -> R): R {
+        return value?.let { block(it) } ?: otherwise()
+    }
 }

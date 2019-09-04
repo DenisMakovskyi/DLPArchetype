@@ -29,7 +29,7 @@ abstract class BindingBottomSheetDialogFragment<B : ViewDataBinding, VM : Dialog
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel = onBind(binding, savedInstanceState)
+        viewModel = onBind(savedInstanceState, binding)
         //-
         lifecycle.addObserver(viewModel)
         //-
@@ -56,7 +56,7 @@ abstract class BindingBottomSheetDialogFragment<B : ViewDataBinding, VM : Dialog
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        viewModel = onBind(binding, null)
+        viewModel = onBind(null, binding)
         viewModel.onActivityResult(requestCode, resultCode, data)
     }
 
@@ -96,7 +96,7 @@ abstract class BindingBottomSheetDialogFragment<B : ViewDataBinding, VM : Dialog
         viewModel.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    abstract fun onBind(binding: B, savedInstanceState: Bundle?): VM
+    abstract fun onBind(savedInstanceState: Bundle?, binding: B): VM
 
     @IdRes
     abstract fun getVariable(): Int
