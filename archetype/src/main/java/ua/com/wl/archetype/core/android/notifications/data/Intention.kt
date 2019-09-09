@@ -7,11 +7,10 @@ import android.content.Context
 import android.app.PendingIntent
 
 import androidx.core.app.TaskStackBuilder
-import androidx.core.os.bundleOf
 
 import ua.com.wl.archetype.core.android.notifications.dsl.IntentionMarker
 import ua.com.wl.archetype.core.android.notifications.dsl.NotificationMarker
-import ua.com.wl.archetype.utils.toArray
+import ua.com.wl.archetype.utils.toBundle
 
 data class Intention(
     val autoCancel: Boolean,
@@ -69,7 +68,7 @@ class PendingIntentBuilder {
                 }
             }
             intentExtras?.let { extras ->
-                putExtras(bundleOf(*extras.toArray()))
+                putExtras(extras.toBundle())
             }
         }
         return when (from) {
