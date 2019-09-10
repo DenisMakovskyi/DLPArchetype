@@ -5,10 +5,10 @@ import kotlin.properties.Delegates
 import android.content.Intent
 import android.content.Context
 import android.app.PendingIntent
-
 import androidx.core.app.TaskStackBuilder
 
-import ua.com.wl.archetype.core.android.notifications.dsl.IntentionMarker
+
+import ua.com.wl.archetype.core.android.notifications.dsl.PendingIntentMarker
 import ua.com.wl.archetype.core.android.notifications.dsl.NotificationMarker
 import ua.com.wl.archetype.utils.toBundle
 
@@ -16,8 +16,8 @@ data class Intention(
     val autoCancel: Boolean,
     val contentIntent: PendingIntent?) {
 
-    @IntentionMarker
     @NotificationMarker
+    @PendingIntentMarker
     class Builder(
         var autoCancel: Boolean = true,
         var contentIntent: PendingIntent? = null) {
@@ -31,7 +31,7 @@ data class Intention(
     }
 }
 
-@IntentionMarker
+@PendingIntentMarker
 class PendingIntentBuilder {
 
     enum class From {
@@ -39,22 +39,61 @@ class PendingIntentBuilder {
         Activity
     }
 
-    var from: From = From.Service
+    var from: From = From.Activity
     var context: Context by Delegates.notNull()
     var requestCode: Int = 100
-    var intentClass: Class<*>? = null
-    var parentStack: List<Class<*>>? = null
-    var intentAction: String? = null
-    var intentFlags: List<Int>? = null
-    var intentCategories: List<String>? = null
-    var intentExtras: Map<String, Any?>? = null
+    var singleTarget: Boolean = true
+    var taskStackElements: List<TaskStackElement> = listOf()
     var pendingIntentFlags: Int = PendingIntent.FLAG_UPDATE_CURRENT
 
     fun build(init: PendingIntentBuilder.() -> Unit): PendingIntent {
         init()
-        val intent = if (intentClass == null) Intent() else Intent(context, intentClass)
-        intent.apply {
-            intentAction?.let {
+        return when(from) {
+            From.Service -> {
+                require(taskStackElements.isNotEmpty()) {
+                    "Can not create service pending intent from empty task elements list"
+                }
+                val target = taskStackElements.first().intent
+                PendingIntent.getService(context, requestCode, target, pendingIntentFlags)
+            }
+            From.Activity -> {
+                if (singleTarget) {
+                    require(taskStackElements.isNotEmpty()) {
+                        "Can not create activity pending intent from empty task elements list"
+                    }
+                    val target = taskStackElements.first().intent
+                    PendingIntent.getActivity(context, requestCode, target, pendingIntentFlags)
+
+                } else {
+                    requireNotNull(TaskStackBuilder.create(context).run {
+                        for (element in taskStackElements) {
+                            when(element.howPut) {
+                                TaskStackElement.HowPut.ONLY_NEXT_INTENT -> addNextIntent(element.intent)
+                                TaskStackElement.HowPut.ONLY_EXTRACT_PARENT -> addParentStack(element.intent.component)
+                                TaskStackElement.HowPut.NEXT_INTENT_WITH_PARENT -> addNextIntentWithParentStack(element.intent)
+                            }
+                        }
+                        getPendingIntent(requestCode, pendingIntentFlags)
+                    })
+                }
+            }
+        }
+    }
+}
+
+class IntentBuilder {
+
+    var context: Context by Delegates.notNull()
+    var intentClass: Class<*> by Delegates.notNull()
+    var intentAction: String? = null
+    var intentFlags: List<Int>? = null
+    var intentCategories: List<String>? = null
+    var intentExtras: Map<String, Any?>? = null
+
+    fun build(init: IntentBuilder.() -> Unit): Intent {
+        init()
+        return Intent(context, intentClass).apply {
+            intentAction?.let { it ->
                 action = it
             }
             intentFlags?.let { flags ->
@@ -71,23 +110,15 @@ class PendingIntentBuilder {
                 putExtras(extras.toBundle())
             }
         }
-        return when (from) {
-            From.Service -> PendingIntent.getService(context, requestCode, intent, pendingIntentFlags)
-            From.Activity -> {
-                parentStack?.let { stack ->
-                    TaskStackBuilder.create(context).run {
-                        for (item in stack) {
-                            addParentStack(item)
-                        }
-                        addNextIntentWithParentStack(intent)
-                        getPendingIntent(requestCode, pendingIntentFlags)
-                    }
+    }
+}
 
-                } ?: run {
-                    PendingIntent.getActivity(context, requestCode, intent, pendingIntentFlags)
-                }
-            }
-        }
+data class TaskStackElement(val intent: Intent, val howPut: HowPut) {
+
+    enum class HowPut {
+        ONLY_NEXT_INTENT,
+        ONLY_EXTRACT_PARENT,
+        NEXT_INTENT_WITH_PARENT
     }
 }
 
@@ -102,3 +133,5 @@ fun Intention.Builder.pendingIntent(init: PendingIntentBuilder.() -> Unit) {
 fun intention(init: Intention.Builder.() -> Unit): Intention = Intention.Builder().build(init)
 
 fun pendingIntent(init: PendingIntentBuilder.() -> Unit): PendingIntent = PendingIntentBuilder().build(init)
+
+fun intent(init: IntentBuilder.() -> Unit): Intent = IntentBuilder().build(init)

@@ -89,9 +89,7 @@ object PushNotificator {
                         }
                     }
                 }
-            }.let { manager ->
-                manager.notify(notification.identifier.notificationId, builder.build())
-            }
+            }.notify(notification.identifier.notificationId, builder.build())
         }
     }
 
