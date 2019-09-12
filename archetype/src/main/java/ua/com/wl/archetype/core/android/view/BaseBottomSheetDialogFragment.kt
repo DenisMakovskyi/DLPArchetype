@@ -29,32 +29,42 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
     val baseActivity: BaseActivity?
         get() = if (activity is BaseActivity) activity as BaseActivity else null
 
-    fun startActivity(cls: Class<out Activity>, bundle: Bundle? = null, extras: Intent? = null) =
-        createActivityLaunchIntent(cls).apply {
+    fun startActivity(
+        cls: Class<out Activity>,
+        bundle: Bundle? = null,
+        extras: Intent? = null
+    ) {
+        val intent = createActivityLaunchIntent(cls).apply {
             bundle?.let { putExtras(it) }
             extras?.let { putExtras(it) }
-        }.let { startActivity(it) }
+        }
+        startActivity(intent)
+    }
 
     fun startActivityForResult(
         requestCode: Int,
         cls: Class<out Activity>,
         bundle: Bundle? = null,
-        extras: Intent? = null) =
-        createActivityLaunchIntent(cls).apply {
+        extras: Intent? = null
+    ) {
+        val intent = createActivityLaunchIntent(cls).apply {
             bundle?.let { putExtras(it) }
             extras?.let { putExtras(it) }
-        }.let { startActivityForResult(it, requestCode) }
+        }
+        startActivityForResult(intent, requestCode)
+    }
 
     fun createActivityLaunchIntent(cls: Class<out Activity>): Intent = Intent(activity, cls)
 
     @Deprecated(
         level = DeprecationLevel.WARNING,
-        message = "BaseBottomSheetDialogFragment::isServiceRunning - this method is only intended for debugging or implementing service management type user interfaces",
+        message = "BaseActivity::isServiceRunning - this method is only intended for debugging or implementing service management type user interfaces",
         replaceWith = ReplaceWith("", ""))
-    fun <T : Service> isServiceRunning(serviceClass: Class<T>): Boolean =
-        (activity?.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
-            .getRunningServices(Int.MAX_VALUE)
-            .has { serviceClass.name == it.service.className }
+    fun <T : Service> isServiceRunning(serviceClass: Class<T>): Boolean {
+        val activityManager = requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val runningServices = activityManager.getRunningServices(Int.MAX_VALUE)
+        return runningServices.has { serviceClass.name == it.service.className }
+    }
 
     fun startService(cls: Class<out Service>): ComponentName? =
         activity?.startService(Intent(activity, cls))
@@ -82,8 +92,10 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         arguments: Bundle? = null,
         addToBackStack: Boolean = false,
         allowStateLoss: Boolean = true,
-        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE) =
+        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
+    ) {
         addFragment(containerId, cls.newInstance(), arguments, addToBackStack, allowStateLoss, transactionType)
+    }
 
     fun addFragment(
         @IdRes containerId: Int,
@@ -91,8 +103,11 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         arguments: Bundle? = null,
         addToBackStack: Boolean = false,
         allowStateLoss: Boolean = true,
-        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE) {
-        fragment.apply { arguments?.let { setArguments(arguments) } }
+        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
+    ) {
+        fragment.apply {
+            arguments?.let { setArguments(it) }
+        }
         createFragmentTransaction(containerId, fragment::class.java.name, fragment, addToBackStack, transactionType).apply {
             if (allowStateLoss) commitAllowingStateLoss() else commit()
         }
@@ -103,12 +118,14 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         tag: String,
         fragment: Fragment,
         addToBackStack: Boolean = false,
-        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE): FragmentTransaction =
-        childFragmentManager.beginTransaction().apply {
+        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
+    ): FragmentTransaction {
+        return childFragmentManager.beginTransaction().apply {
             when(transactionType) {
                 FragmentTransactionType.ADD -> add(containerId, fragment, tag)
                 FragmentTransactionType.REPLACE -> replace(containerId, fragment, tag)
             }
             if (addToBackStack) addToBackStack(tag)
         }
+    }
 }

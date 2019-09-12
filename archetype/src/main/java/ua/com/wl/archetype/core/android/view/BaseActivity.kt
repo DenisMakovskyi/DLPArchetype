@@ -45,7 +45,8 @@ open class BaseActivity : AppCompatActivity() {
         iconResId: Int = 0,
         iconDrawable: Drawable? = null,
         toolbarTitleText: String? = null,
-        onNavigationClickListener: View.OnClickListener? = null) {
+        onNavigationClickListener: View.OnClickListener? = null
+    ) {
         setSupportActionBar(toolbar)
         supportActionBar?.apply {
             setDisplayUseLogoEnabled(useLogo)
@@ -68,17 +69,30 @@ open class BaseActivity : AppCompatActivity() {
         }
     }
 
-    fun startActivity(cls: Class<out Activity>, bundle: Bundle? = null, extras: Intent? = null) =
-        createActivityLaunchIntent(cls).apply {
+    fun startActivity(
+        cls: Class<out Activity>,
+        bundle: Bundle? = null,
+        extras: Intent? = null
+    ) {
+        val intent = createActivityLaunchIntent(cls).apply {
             bundle?.let { putExtras(it) }
             extras?.let { putExtras(it) }
-        }.let { startActivity(it) }
+        }
+        startActivity(intent)
+    }
 
-    fun startActivityForResult(requestCode: Int, cls: Class<out Activity>, bundle: Bundle? = null, extras: Intent? = null) =
-        createActivityLaunchIntent(cls).apply {
+    fun startActivityForResult(
+        requestCode: Int,
+        cls: Class<out Activity>,
+        bundle: Bundle? = null,
+        extras: Intent? = null
+    ) {
+        val intent = createActivityLaunchIntent(cls).apply {
             bundle?.let { putExtras(it) }
             extras?.let { putExtras(it) }
-        }.let { startActivityForResult(it, requestCode) }
+        }
+        startActivityForResult(intent, requestCode)
+    }
 
     fun createActivityLaunchIntent(cls: Class<out Activity>): Intent = Intent(this, cls)
 
@@ -86,10 +100,11 @@ open class BaseActivity : AppCompatActivity() {
         level = DeprecationLevel.WARNING,
         message = "BaseActivity::isServiceRunning - this method is only intended for debugging or implementing service management type user interfaces",
         replaceWith = ReplaceWith("", ""))
-    fun <T : Service> isServiceRunning(serviceClass: Class<T>): Boolean =
-        (getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
-            .getRunningServices(Int.MAX_VALUE)
-            .has { serviceClass.name == it.service.className }
+    fun <T : Service> isServiceRunning(serviceClass: Class<T>): Boolean {
+        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val runningServices = activityManager.getRunningServices(Int.MAX_VALUE)
+        return runningServices.has { serviceClass.name == it.service.className }
+    }
 
     fun startService(cls: Class<out Service>): ComponentName? =
         startService(Intent(this, cls))
@@ -115,8 +130,10 @@ open class BaseActivity : AppCompatActivity() {
         arguments: Bundle? = null,
         addToBackStack: Boolean = false,
         allowStateLoss: Boolean = true,
-        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE) =
+        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
+    ) {
         addFragment(containerId, cls.newInstance(), arguments, addToBackStack, allowStateLoss, transactionType)
+    }
 
     fun addFragment(
         @IdRes containerId: Int,
@@ -124,8 +141,11 @@ open class BaseActivity : AppCompatActivity() {
         arguments: Bundle? = null,
         addToBackStack: Boolean = false,
         allowStateLoss: Boolean = true,
-        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE) {
-        fragment.apply { arguments?.let { setArguments(arguments) } }
+        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
+    ) {
+        fragment.apply {
+            arguments?.let { setArguments(it) }
+        }
         createFragmentTransaction(containerId, fragment::class.java.name, fragment, addToBackStack, transactionType).apply {
             if (allowStateLoss) commitAllowingStateLoss() else commit()
         }
@@ -136,12 +156,14 @@ open class BaseActivity : AppCompatActivity() {
         tag: String,
         fragment: Fragment,
         addToBackStack: Boolean = false,
-        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE): FragmentTransaction =
-        supportFragmentManager.beginTransaction().apply {
+        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
+    ): FragmentTransaction {
+        return supportFragmentManager.beginTransaction().apply {
             when(transactionType) {
                 FragmentTransactionType.ADD -> add(containerId, fragment, tag)
                 FragmentTransactionType.REPLACE -> replace(containerId, fragment, tag)
             }
             if (addToBackStack) addToBackStack(tag)
         }
+    }
 }

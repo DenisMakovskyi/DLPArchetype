@@ -21,6 +21,7 @@ abstract class BindingDialogFragment <B : ViewDataBinding, VM : DialogFragmentVi
 
     lateinit var binding: B
         private set
+
     lateinit var viewModel: VM
         private set
 

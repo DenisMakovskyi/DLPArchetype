@@ -17,7 +17,9 @@ open class ObservableViewModel(application: Application) : AndroidViewModel(appl
 
     override fun addOnPropertyChangedCallback(callback: Observable.OnPropertyChangedCallback?) {
         synchronized(this) {
-            if (callbacks == null) callbacks = PropertyChangeRegistry()
+            if (callbacks == null) {
+                callbacks = PropertyChangeRegistry()
+            }
         }
         callbacks?.add(callback)
     }
@@ -28,11 +30,15 @@ open class ObservableViewModel(application: Application) : AndroidViewModel(appl
 
     fun getApp() = getApplication<Application>()
 
-    fun notifyChange() = synchronized(this) {
-        callbacks?.notifyCallbacks(this, 0, null)
+    fun notifyChange() {
+        synchronized(this) {
+            callbacks?.notifyCallbacks(this, 0, null)
+        }
     }
 
-    fun notifyPropertyChanged(fieldId: Int) = synchronized(this) {
-        callbacks?.notifyCallbacks(this, fieldId, null)
+    fun notifyPropertyChanged(fieldId: Int) {
+        synchronized(this) {
+            callbacks?.notifyCallbacks(this, fieldId, null)
+        }
     }
 }

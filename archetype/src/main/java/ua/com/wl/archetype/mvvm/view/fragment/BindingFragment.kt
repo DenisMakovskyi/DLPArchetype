@@ -19,6 +19,7 @@ abstract class BindingFragment<B : ViewDataBinding, VM : FragmentViewModel> : Ba
 
     lateinit var binding: B
         private set
+
     lateinit var viewModel: VM
         private set
 

@@ -19,6 +19,12 @@ class MainThreadExecutor : Executor {
     private val handler: Handler = Handler(Looper.getMainLooper())
 
     override fun execute(command: Runnable?) {
-        command?.let { if (Looper.getMainLooper() == Looper.myLooper()) it.run() else handler.post(it) }
+        command?.let {
+            if (Looper.getMainLooper() == Looper.myLooper()) {
+                it.run()
+            } else {
+                handler.post(it)
+            }
+        }
     }
 }

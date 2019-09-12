@@ -19,6 +19,7 @@ abstract class BindingBottomSheetDialogFragment<B : ViewDataBinding, VM : Dialog
 
     lateinit var binding: B
         private set
+
     lateinit var viewModel: VM
         private set
 
