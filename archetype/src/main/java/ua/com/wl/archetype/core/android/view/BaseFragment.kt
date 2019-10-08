@@ -31,7 +31,7 @@ open class BaseFragment : Fragment() {
     val baseActivity: BaseActivity?
         get() = if (activity is BaseActivity) activity as BaseActivity else null
 
-    val supportActionBar: ActionBar? = baseActivity?.supportActionBar
+    var supportActionBar: ActionBar? = baseActivity?.supportActionBar
 
     fun setSupportActionBar(toolbar: Toolbar) = baseActivity?.setSupportActionBar(toolbar)
 

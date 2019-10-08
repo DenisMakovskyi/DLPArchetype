@@ -19,7 +19,7 @@ class Optional<T> private constructor(val value: T? = null) {
 
     fun isNotEmpty(): Boolean = value != null
 
-    fun getOrElse(other: T): T? = value?.let { it } ?: other
+    fun getOrElse(other: T): T? = value ?: other
 
     fun getUnsafe(): T? = value
 
@@ -30,7 +30,7 @@ class Optional<T> private constructor(val value: T? = null) {
     }
 
     fun <R> flatMap(block: (T) -> Optional<R>): Optional<R> {
-        return when (value) {
+        return when(value) {
             null -> empty()
             else -> block(value)
         }
