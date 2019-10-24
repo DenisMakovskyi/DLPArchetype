@@ -9,8 +9,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 
 import dagger.android.AndroidInjection
+import dagger.android.HasAndroidInjector
 import dagger.android.support.AndroidSupportInjection
-import dagger.android.support.HasSupportFragmentInjector
 
 /**
  * @author Denis Makovskyi
@@ -25,7 +25,7 @@ object Injector {
                 .find { it.annotationClass == Injectable::class }
                 ?.let { AndroidInjection.inject(activity) }
             //--
-            if (activity is FragmentActivity && activity is HasSupportFragmentInjector) {
+            if (activity is FragmentActivity && activity is HasAndroidInjector) {
                 activity.supportFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
                     override fun onFragmentCreated(fragmentManager: FragmentManager, fragment: Fragment, savedInstanceState: Bundle?) {
                         fragment::class.annotations
