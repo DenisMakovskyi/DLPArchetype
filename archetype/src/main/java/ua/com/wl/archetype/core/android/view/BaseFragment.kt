@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
@@ -38,20 +39,27 @@ open class BaseFragment : Fragment() {
 
     fun setupToolbar(
         toolbar: Toolbar,
-        useLogo: Boolean = false,
         showHome: Boolean = false,
         homeAsUp: Boolean = false,
+        showLogo: Boolean = false,
         showTitle: Boolean = false,
         showCustom: Boolean = false,
-        iconResId: Int = 0,
+        @DrawableRes iconResId: Int = 0,
         iconDrawable: Drawable? = null,
-        logoResId: Int = 0,
+        @DrawableRes logoResId: Int = 0,
         logoDrawable: Drawable? = null,
         toolbarTitleText: String? = null,
         onNavigationClickListener: View.OnClickListener? = null
     ) {
+        setSupportActionBar(toolbar)
+        supportActionBar?.apply {
+            setDisplayShowHomeEnabled(showHome)
+            setDisplayHomeAsUpEnabled(homeAsUp)
+            setDisplayUseLogoEnabled(showLogo)
+            setDisplayShowTitleEnabled(showTitle)
+            setDisplayShowCustomEnabled(showCustom)
+        }
         toolbar.apply {
-            setSupportActionBar(this)
             // - nav icon
             if (iconResId != 0) {
                 setNavigationIcon(iconResId)
@@ -65,16 +73,7 @@ open class BaseFragment : Fragment() {
             // - toolbar title
             title = toolbarTitleText
             // - nav click listener
-            onNavigationClickListener?.let {
-                setNavigationOnClickListener(it)
-            }
-        }
-        supportActionBar?.apply {
-            setDisplayUseLogoEnabled(useLogo)
-            setDisplayShowHomeEnabled(showHome)
-            setDisplayHomeAsUpEnabled(homeAsUp)
-            setDisplayShowTitleEnabled(showTitle)
-            setDisplayShowCustomEnabled(showCustom)
+            setNavigationOnClickListener(onNavigationClickListener)
         }
     }
 
@@ -178,11 +177,21 @@ open class BaseFragment : Fragment() {
         }
     }
 
-    fun popBackStackInclusive(id: Int) {
-        childFragmentManager.popBackStack(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-    }
+    fun popBackStack() =
+        childFragmentManager.popBackStack()
 
-    fun popBackStackInclusive(name: String?) {
+    fun popBackStackImmediate(): Boolean =
+        childFragmentManager.popBackStackImmediate()
+
+    fun popBackStackInclusive(id: Int) =
+        childFragmentManager.popBackStack(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+
+    fun popBackStackInclusive(name: String?) =
         childFragmentManager.popBackStack(name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-    }
+
+    fun popBackStackImmediateInclusive(id: Int): Boolean =
+        childFragmentManager.popBackStackImmediate(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+
+    fun popBackStackImmediateInclusive(name: String?): Boolean =
+        childFragmentManager.popBackStackImmediate(name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 }

@@ -129,11 +129,21 @@ open class BaseDialogFragment: DialogFragment() {
         }
     }
 
-    fun popBackStackInclusive(id: Int) {
-        childFragmentManager.popBackStack(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-    }
+    fun popBackStack() =
+        childFragmentManager.popBackStack()
 
-    fun popBackStackInclusive(name: String?) {
+    fun popBackStackImmediate(): Boolean =
+        childFragmentManager.popBackStackImmediate()
+
+    fun popBackStackInclusive(id: Int) =
+        childFragmentManager.popBackStack(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+
+    fun popBackStackInclusive(name: String?) =
         childFragmentManager.popBackStack(name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-    }
+
+    fun popBackStackImmediateInclusive(id: Int): Boolean =
+        childFragmentManager.popBackStackImmediate(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+
+    fun popBackStackImmediateInclusive(name: String?): Boolean =
+        childFragmentManager.popBackStackImmediate(name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 }
