@@ -14,6 +14,7 @@ import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 
 import ua.com.wl.archetype.utils.Optional
@@ -126,5 +127,13 @@ open class BaseDialogFragment: DialogFragment() {
             }
             if (addToBackStack) addToBackStack(tag)
         }
+    }
+
+    fun popBackStackInclusive(id: Int) {
+        childFragmentManager.popBackStack(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    }
+
+    fun popBackStackInclusive(name: String?) {
+        childFragmentManager.popBackStack(name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 }

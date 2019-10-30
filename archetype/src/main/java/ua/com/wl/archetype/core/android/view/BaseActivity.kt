@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 
 import ua.com.wl.archetype.utils.Optional
@@ -44,28 +45,36 @@ open class BaseActivity : AppCompatActivity() {
         showCustom: Boolean = false,
         iconResId: Int = 0,
         iconDrawable: Drawable? = null,
+        logoResId: Int = 0,
+        logoDrawable: Drawable? = null,
         toolbarTitleText: String? = null,
         onNavigationClickListener: View.OnClickListener? = null
     ) {
-        setSupportActionBar(toolbar)
+        toolbar.apply {
+            setSupportActionBar(this)
+            // - nav icon
+            if (iconResId != 0) {
+                setNavigationIcon(iconResId)
+            }
+            navigationIcon = iconDrawable
+            // - toolbar logo
+            if (logoResId != 0) {
+                setLogo(logoResId)
+            }
+            logo = logoDrawable
+            // - toolbar title
+            title = toolbarTitleText
+            // - nav click listener
+            onNavigationClickListener?.let {
+                setNavigationOnClickListener(it)
+            }
+        }
         supportActionBar?.apply {
             setDisplayUseLogoEnabled(useLogo)
             setDisplayShowHomeEnabled(showHome)
             setDisplayHomeAsUpEnabled(homeAsUp)
             setDisplayShowTitleEnabled(showTitle)
             setDisplayShowCustomEnabled(showCustom)
-        }
-        if (iconResId != 0) {
-            toolbar.setNavigationIcon(iconResId)
-        }
-        iconDrawable?.let {
-            toolbar.navigationIcon = it
-        }
-        toolbarTitleText?.let {
-            toolbar.title = it
-        }
-        onNavigationClickListener?.let {
-            toolbar.setNavigationOnClickListener(it)
         }
     }
 
@@ -165,5 +174,13 @@ open class BaseActivity : AppCompatActivity() {
             }
             if (addToBackStack) addToBackStack(tag)
         }
+    }
+
+    fun popBackStackInclusive(id: Int) {
+        supportFragmentManager.popBackStack(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    }
+
+    fun popBackStackInclusive(name: String?, flags: Int) {
+        supportFragmentManager.popBackStack(name, flags)
     }
 }
