@@ -62,15 +62,15 @@ open class BaseActivity : AppCompatActivity() {
         }
         toolbar.apply {
             // - nav icon
+            navigationIcon = iconDrawable
             if (iconResId != 0) {
                 setNavigationIcon(iconResId)
             }
-            navigationIcon = iconDrawable
             // - toolbar logo
+            logo = logoDrawable
             if (logoResId != 0) {
                 setLogo(logoResId)
             }
-            logo = logoDrawable
             // - toolbar title
             title = toolbarTitleText
             // - nav click listener

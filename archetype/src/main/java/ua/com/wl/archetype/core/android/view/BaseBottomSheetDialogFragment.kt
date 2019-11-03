@@ -123,8 +123,8 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
     ): FragmentTransaction {
         return childFragmentManager.beginTransaction().apply {
             when(transactionType) {
-                FragmentTransactionType.ADD -> add(containerId, fragment, tag)
-                FragmentTransactionType.REPLACE -> replace(containerId, fragment, tag)
+                FragmentTransactionType.ADD -> add(containerId, fragment, fragment::class.java.name)
+                FragmentTransactionType.REPLACE -> replace(containerId, fragment, fragment::class.java.name)
             }
             if (addToBackStack) addToBackStack(tag)
         }

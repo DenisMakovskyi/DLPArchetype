@@ -61,15 +61,15 @@ open class BaseFragment : Fragment() {
         }
         toolbar.apply {
             // - nav icon
+            navigationIcon = iconDrawable
             if (iconResId != 0) {
                 setNavigationIcon(iconResId)
             }
-            navigationIcon = iconDrawable
             // - toolbar logo
+            logo = logoDrawable
             if (logoResId != 0) {
                 setLogo(logoResId)
             }
-            logo = logoDrawable
             // - toolbar title
             title = toolbarTitleText
             // - nav click listener
@@ -170,8 +170,8 @@ open class BaseFragment : Fragment() {
     ): FragmentTransaction {
         return childFragmentManager.beginTransaction().apply {
             when(transactionType) {
-                FragmentTransactionType.ADD -> add(containerId, fragment, tag)
-                FragmentTransactionType.REPLACE -> replace(containerId, fragment, tag)
+                FragmentTransactionType.ADD -> add(containerId, fragment, fragment::class.java.name)
+                FragmentTransactionType.REPLACE -> replace(containerId, fragment, fragment::class.java.name)
             }
             if (addToBackStack) addToBackStack(tag)
         }
