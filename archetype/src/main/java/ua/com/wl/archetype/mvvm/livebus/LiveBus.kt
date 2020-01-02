@@ -13,7 +13,7 @@ import ua.com.wl.archetype.utils.getOrElse
 
 class LiveBus {
 
-    private val eventMap: MutableMap<Class<out Event>, LiveEvent<out Event>> = hashMapOf()
+    private val eventMap = hashMapOf<Class<out Event>, LiveEvent<out Event>>()
 
     fun <T : Event> observe(lifecycleOwner: LifecycleOwner, eventClass: Class<T>, observer: Observer<T>) {
         val liveEvent = eventMap.getOrElse(eventClass, initLiveEvent(eventClass)) as LiveEvent<T>

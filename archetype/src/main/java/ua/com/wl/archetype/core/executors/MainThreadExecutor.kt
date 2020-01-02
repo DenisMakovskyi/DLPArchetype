@@ -13,10 +13,10 @@ class MainThreadExecutor : Executor {
 
     companion object {
 
-        val INSTANCE: MainThreadExecutor = MainThreadExecutor()
+        val INSTANCE = MainThreadExecutor()
     }
 
-    private val handler: Handler = Handler(Looper.getMainLooper())
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun execute(command: Runnable?) {
         command?.let {

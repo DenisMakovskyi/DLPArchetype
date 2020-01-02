@@ -23,7 +23,7 @@ class Optional<T> private constructor(val value: T? = null) {
 
     fun getUnsafe(): T? = value
 
-    fun getOrThrow(): T = value?.let { it } ?: throw NoSuchElementException("No value present")
+    fun getOrThrow(): T = value ?: throw NoSuchElementException("No value present")
 
     fun <R> map(block: (T) -> R): Optional<R> {
         return flatMap { lift(block(it)) }

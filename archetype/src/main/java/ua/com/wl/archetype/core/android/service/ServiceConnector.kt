@@ -22,6 +22,7 @@ open class ServiceConnector<S : Service>(val onServiceConnectionListener: OnServ
         binder?.let { onServiceConnectionListener.onServiceConnected((it as ServiceBinder).getService(), it) }
     }
 
-    override fun onServiceDisconnected(componentName: ComponentName?) =
+    override fun onServiceDisconnected(componentName: ComponentName?) {
         onServiceConnectionListener.onServiceDisconnected(componentName)
+    }
 }

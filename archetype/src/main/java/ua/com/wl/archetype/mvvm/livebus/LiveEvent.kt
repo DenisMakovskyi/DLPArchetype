@@ -1,7 +1,6 @@
 package ua.com.wl.archetype.mvvm.livebus
 
 import androidx.lifecycle.LifecycleOwner
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 
 import androidx.lifecycle.Observer
@@ -15,7 +14,7 @@ import ua.com.wl.archetype.utils.concurrentHashMapOf
 
 class LiveEvent<T>: MutableLiveData<T>() {
 
-    private val pendingObservers: ConcurrentHashMap<Observer<in T>, Pair<Observer<in T>, AtomicBoolean>> = concurrentHashMapOf()
+    private val pendingObservers = concurrentHashMapOf<Observer<in T>, Pair<Observer<in T>, AtomicBoolean>>()
 
     override fun observe(owner: LifecycleOwner, observer: Observer<in T>) {
         val interceptor: Observer<in T> = object : Observer<T> {
