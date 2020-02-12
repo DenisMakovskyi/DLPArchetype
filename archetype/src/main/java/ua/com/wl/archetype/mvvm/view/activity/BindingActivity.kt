@@ -32,82 +32,114 @@ abstract class BindingActivity<B : ViewDataBinding, VM : ActivityViewModel> : Ba
 
     override fun onStart() {
         super.onStart()
-        viewModel.onStart()
+        if (::viewModel.isInitialized) {
+            viewModel.onStart()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        viewModel.onActivityResult(requestCode, resultCode, data)
+        if (::viewModel.isInitialized) {
+            viewModel.onActivityResult(requestCode, resultCode, data)
+        }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        viewModel.onRestoreInstanceState(savedInstanceState)
+        if (::viewModel.isInitialized) {
+            viewModel.onRestoreInstanceState(savedInstanceState)
+        }
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        viewModel.onPostCreate(savedInstanceState)
+        if (::viewModel.isInitialized) {
+            viewModel.onPostCreate(savedInstanceState)
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.onResume()
+        if (::viewModel.isInitialized) {
+            viewModel.onResume()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        viewModel.onCreateOptionsMenu(menu)
+        if (::viewModel.isInitialized) {
+            viewModel.onCreateOptionsMenu(menu)
+        }
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        viewModel.onPrepareOptionsMenu(menu)
+        if (::viewModel.isInitialized) {
+            viewModel.onPrepareOptionsMenu(menu)
+        }
         return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onPause() {
-        viewModel.onPause()
+        if (::viewModel.isInitialized) {
+            viewModel.onPause()
+        }
         super.onPause()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        viewModel.onSaveInstanceState(outState)
+        if (::viewModel.isInitialized) {
+            viewModel.onSaveInstanceState(outState)
+        }
     }
 
     override fun onStop() {
-        viewModel.onStop()
+        if (::viewModel.isInitialized) {
+            viewModel.onStop()
+        }
         super.onStop()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        viewModel.onConfigurationChanged(newConfig)
+        if (::viewModel.isInitialized) {
+            viewModel.onConfigurationChanged(newConfig)
+        }
     }
 
     override fun onDestroy() {
+        if (::viewModel.isInitialized) {
+            viewModel.onDestroy()
+            lifecycle.removeObserver(viewModel)
+        }
         super.onDestroy()
-        viewModel.onDestroy()
-        lifecycle.removeObserver(viewModel)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        viewModel.onWindowFocusChanged(hasFocus)
+        if (::viewModel.isInitialized) {
+            viewModel.onWindowFocusChanged(hasFocus)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        viewModel.onOptionsItemSelected(item)
+        if (::viewModel.isInitialized) {
+            viewModel.onOptionsItemSelected(item)
+        }
         return super.onOptionsItemSelected(item)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        viewModel.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (::viewModel.isInitialized) {
+            viewModel.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
     }
 
     override fun onBackPressed() {
-        if (!viewModel.onBackPressed()) super.onBackPressed()
+        if (::viewModel.isInitialized) {
+            if (!viewModel.onBackPressed()) super.onBackPressed()
+        }
     }
 
     abstract fun onBind(savedInstanceState: Bundle?): VM
