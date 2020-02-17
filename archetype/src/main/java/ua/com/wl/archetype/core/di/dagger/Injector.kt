@@ -22,16 +22,20 @@ object Injector {
     fun <T : Application> init(app: T) {
         app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, state: Bundle?) {
-                activity::class.annotations
+                val activityAnnotation = activity::class.annotations
                     .find { it.annotationClass == Injectable::class }
-                    ?.let { AndroidInjection.inject(activity) }
+                if (activityAnnotation != null) {
+                    AndroidInjection.inject(activity)
+                }
                 //--
                 if (activity is FragmentActivity && activity is HasAndroidInjector) {
                     activity.supportFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
                         override fun onFragmentCreated(fragmentManager: FragmentManager, fragment: Fragment, savedInstanceState: Bundle?) {
-                            fragment::class.annotations
+                            val fragmentAnnotation = fragment::class.annotations
                                 .find { it.annotationClass == Injectable::class }
-                                ?.let { AndroidSupportInjection.inject(fragment) }
+                            if (fragmentAnnotation != null) {
+                                AndroidSupportInjection.inject(fragment)
+                            }
                         }
                     }, true)
                 }

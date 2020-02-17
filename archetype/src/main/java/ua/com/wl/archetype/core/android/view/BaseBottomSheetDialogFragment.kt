@@ -1,5 +1,3 @@
-@file:Suppress("UNCHECKED_CAST")
-
 package ua.com.wl.archetype.core.android.view
 
 import android.app.Activity
@@ -31,11 +29,11 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         get() = if (activity is BaseActivity) activity as BaseActivity else null
 
     fun startActivity(
-        cls: Class<out Activity>,
+        clazz: Class<out Activity>,
         bundle: Bundle? = null,
         extras: Intent? = null
     ) {
-        val intent = createActivityLaunchIntent(cls).apply {
+        val intent = createActivityLaunchIntent(clazz).apply {
             bundle?.let { putExtras(it) }
             extras?.let { putExtras(it) }
         }
@@ -43,19 +41,21 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     fun startActivityForResult(
-        requestCode: Int,
-        cls: Class<out Activity>,
+        code: Int,
+        clazz: Class<out Activity>,
         bundle: Bundle? = null,
         extras: Intent? = null
     ) {
-        val intent = createActivityLaunchIntent(cls).apply {
+        val intent = createActivityLaunchIntent(clazz).apply {
             bundle?.let { putExtras(it) }
             extras?.let { putExtras(it) }
         }
-        startActivityForResult(intent, requestCode)
+        startActivityForResult(intent, code)
     }
 
-    fun createActivityLaunchIntent(cls: Class<out Activity>): Intent = Intent(activity, cls)
+    fun createActivityLaunchIntent(clazz: Class<out Activity>): Intent {
+        return Intent(requireActivity(), clazz)
+    }
 
     @Deprecated(
         level = DeprecationLevel.WARNING,
@@ -67,35 +67,45 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         return runningServices.has { serviceClass.name == it.service.className }
     }
 
-    fun startService(cls: Class<out Service>): ComponentName? =
-        activity?.startService(Intent(activity, cls))
+    fun stopService(clazz: Class<out Service>): Boolean {
+        return activity?.stopService(Intent(activity, clazz)) ?: false
+    }
 
-    fun stopService(cls: Class<out Service>): Boolean =
-        activity?.stopService(Intent(activity, cls)) ?: false
+    fun startService(clazz: Class<out Service>): ComponentName? {
+        return activity?.startService(Intent(activity, clazz))
+    }
 
-    fun restartService(cls: Class<out Service>): ComponentName? =
-        stopService(cls).let { if (it) startService(cls) else null }
+    fun restartService(cls: Class<out Service>): ComponentName? {
+        val isStopped = stopService(cls)
+        return if (isStopped) startService(cls) else null
+    }
 
-    fun bindService(cls: Class<out Service>, serviceConnection: ServiceConnection, flags: Int): Boolean =
-        activity?.bindService(Intent(activity, cls), serviceConnection, flags) ?: false
+    fun bindService(
+        flags: Int,
+        clazz: Class<out Service>,
+        serviceConnection: ServiceConnection
+    ): Boolean {
+        return activity?.bindService(Intent(activity, clazz), serviceConnection, flags) ?: false
+    }
 
     fun unbindService(serviceConnection: ServiceConnection) = activity?.unbindService(serviceConnection)
 
-    fun <T : Fragment> findFragment(@IdRes containerId: Int): Optional<T> =
-        Optional.ofNullable(childFragmentManager.findFragmentById(containerId) as T?)
-
-    fun <T : Fragment> findFragment(cls: Class<T>): Optional<T> =
-        Optional.ofNullable(childFragmentManager.findFragmentByTag(cls.name) as T?)
 
     fun addFragment(
         @IdRes containerId: Int,
-        cls: Class<out Fragment>,
+        clazz: Class<out Fragment>,
         arguments: Bundle? = null,
         addToBackStack: Boolean = false,
         allowStateLoss: Boolean = true,
         transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
     ) {
-        addFragment(containerId, cls.newInstance(), arguments, addToBackStack, allowStateLoss, transactionType)
+        addFragment(
+            containerId,
+            clazz.newInstance(),
+            arguments,
+            addToBackStack,
+            allowStateLoss,
+            transactionType)
     }
 
     fun addFragment(
@@ -106,10 +116,16 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         allowStateLoss: Boolean = true,
         transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
     ) {
-        fragment.apply {
-            arguments?.let { setArguments(it) }
+        arguments?.let {
+            fragment.arguments = it
         }
-        createFragmentTransaction(containerId, fragment::class.java.name, fragment, addToBackStack, transactionType).apply {
+        createFragmentTransaction(
+            containerId,
+            fragment::class.java.name,
+            fragment,
+            addToBackStack,
+            transactionType
+        ).apply {
             if (allowStateLoss) commitAllowingStateLoss() else commit()
         }
     }
@@ -121,30 +137,59 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         addToBackStack: Boolean = false,
         transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
     ): FragmentTransaction {
-        return childFragmentManager.beginTransaction().apply {
-            when(transactionType) {
-                FragmentTransactionType.ADD -> add(containerId, fragment, fragment::class.java.name)
-                FragmentTransactionType.REPLACE -> replace(containerId, fragment, fragment::class.java.name)
+        return childFragmentManager.beginTransaction()
+            .apply {
+                when (transactionType) {
+                    FragmentTransactionType.ADD -> add(containerId, fragment, tag)
+                    FragmentTransactionType.REPLACE -> replace(containerId, fragment, tag)
+                }
+                if (addToBackStack) addToBackStack(tag)
             }
-            if (addToBackStack) addToBackStack(tag)
+    }
+
+    fun popBackStack() {
+        childFragmentManager.popBackStack()
+    }
+
+    fun popBackStackImmediate(): Boolean {
+        return childFragmentManager.popBackStackImmediate()
+    }
+
+    fun popBackStackInclusive(id: Int) {
+        return childFragmentManager.popBackStack(
+            id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    }
+
+    fun popBackStackInclusive(name: String?) {
+        return childFragmentManager.popBackStack(
+            name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    }
+
+    fun popBackStackImmediateInclusive(id: Int): Boolean {
+        return childFragmentManager.popBackStackImmediate(
+            id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    }
+
+    fun popBackStackImmediateInclusive(name: String?): Boolean {
+        return childFragmentManager.popBackStackImmediate(
+            name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    }
+
+    inline fun <reified T : Fragment> findFragment(@IdRes containerId: Int): Optional<T> {
+        val fragment = childFragmentManager.findFragmentById(containerId)
+        return if (fragment is T?) {
+            Optional.ofNullable(fragment)
+        } else {
+            Optional.empty()
         }
     }
 
-    fun popBackStack() =
-        childFragmentManager.popBackStack()
-
-    fun popBackStackImmediate(): Boolean =
-        childFragmentManager.popBackStackImmediate()
-
-    fun popBackStackInclusive(id: Int) =
-        childFragmentManager.popBackStack(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-
-    fun popBackStackInclusive(name: String?) =
-        childFragmentManager.popBackStack(name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-
-    fun popBackStackImmediateInclusive(id: Int): Boolean =
-        childFragmentManager.popBackStackImmediate(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-
-    fun popBackStackImmediateInclusive(name: String?): Boolean =
-        childFragmentManager.popBackStackImmediate(name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    inline fun <reified T : Fragment> findFragment(clazz: Class<T>): Optional<T> {
+        val fragment = childFragmentManager.findFragmentByTag(clazz.name)
+        return if (fragment is T?) {
+            Optional.ofNullable(fragment)
+        } else {
+            Optional.empty()
+        }
+    }
 }

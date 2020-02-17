@@ -28,8 +28,6 @@ open class ObservableViewModel(application: Application) : AndroidViewModel(appl
         callbacks?.remove(callback)
     }
 
-    fun getApp() = getApplication<Application>()
-
     fun notifyChange() {
         synchronized(this) {
             callbacks?.notifyCallbacks(this, 0, null)

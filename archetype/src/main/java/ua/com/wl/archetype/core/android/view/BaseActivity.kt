@@ -1,5 +1,3 @@
-@file:Suppress("UNCHECKED_CAST")
-
 package ua.com.wl.archetype.core.android.view
 
 import android.app.Activity
@@ -16,15 +14,15 @@ import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 
+import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 
-import ua.com.wl.archetype.utils.Optional
 import ua.com.wl.archetype.utils.has
+import ua.com.wl.archetype.utils.Optional
 
 /**
  * @author Denis Makovskyi
@@ -79,11 +77,11 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     fun startActivity(
-        cls: Class<out Activity>,
+        clazz: Class<out Activity>,
         bundle: Bundle? = null,
         extras: Intent? = null
     ) {
-        val intent = createActivityLaunchIntent(cls).apply {
+        val intent = createActivityLaunchIntent(clazz).apply {
             bundle?.let { putExtras(it) }
             extras?.let { putExtras(it) }
         }
@@ -91,57 +89,69 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     fun startActivityForResult(
-        requestCode: Int,
-        cls: Class<out Activity>,
+        code: Int,
+        clazz: Class<out Activity>,
         bundle: Bundle? = null,
         extras: Intent? = null
     ) {
-        val intent = createActivityLaunchIntent(cls).apply {
+        val intent = createActivityLaunchIntent(clazz).apply {
             bundle?.let { putExtras(it) }
             extras?.let { putExtras(it) }
         }
-        startActivityForResult(intent, requestCode)
+        startActivityForResult(intent, code)
     }
 
-    fun createActivityLaunchIntent(cls: Class<out Activity>): Intent = Intent(this, cls)
+    fun createActivityLaunchIntent(clazz: Class<out Activity>): Intent {
+        return Intent(this, clazz)
+    }
 
     @Deprecated(
         level = DeprecationLevel.WARNING,
         message = "BaseActivity::isServiceRunning - this method is only intended for debugging or implementing service management type user interfaces",
-        replaceWith = ReplaceWith("", ""))
-    fun <T : Service> isServiceRunning(serviceClass: Class<T>): Boolean {
+        replaceWith = ReplaceWith("", "")
+    )
+    fun <T : Service> isServiceRunning(clazz: Class<T>): Boolean {
         val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val runningServices = activityManager.getRunningServices(Int.MAX_VALUE)
-        return runningServices.has { serviceClass.name == it.service.className }
+        return runningServices.has { clazz.name == it.service.className }
     }
 
-    fun startService(cls: Class<out Service>): ComponentName? =
-        startService(Intent(this, cls))
+    fun stopService(clazz: Class<out Service>): Boolean {
+        return stopService(Intent(this, clazz))
+    }
 
-    fun stopService(cls: Class<out Service>): Boolean =
-        stopService(Intent(this, cls))
+    fun startService(clazz: Class<out Service>): ComponentName? {
+        return startService(Intent(this, clazz))
+    }
 
-    fun restartService(cls: Class<out Service>): ComponentName? =
-        stopService(cls).let { if (it) startService(cls) else null }
+    fun restartService(cls: Class<out Service>): ComponentName? {
+        val isStopped = stopService(cls)
+        return if (isStopped) startService(cls) else null
+    }
 
-    fun bindService(cls: Class<out Service>, serviceConnection: ServiceConnection, flags: Int): Boolean =
-        bindService(Intent(this, cls), serviceConnection, flags)
-
-    fun <T : Fragment> findFragment(@IdRes containerId: Int): Optional<T> =
-        Optional.ofNullable(supportFragmentManager.findFragmentById(containerId) as T?)
-
-    fun <T : Fragment> findFragment(cls: Class<T>): Optional<T> =
-        Optional.ofNullable(supportFragmentManager.findFragmentByTag(cls.name) as T?)
+    fun bindService(
+        flags: Int,
+        clazz: Class<out Service>,
+        serviceConnection: ServiceConnection
+    ): Boolean {
+        return bindService(Intent(this, clazz), serviceConnection, flags)
+    }
 
     fun addFragment(
         @IdRes containerId: Int,
-        cls: Class<out Fragment>,
+        clazz: Class<out Fragment>,
         arguments: Bundle? = null,
         addToBackStack: Boolean = false,
         allowStateLoss: Boolean = true,
         transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
     ) {
-        addFragment(containerId, cls.newInstance(), arguments, addToBackStack, allowStateLoss, transactionType)
+        addFragment(
+            containerId,
+            clazz.newInstance(),
+            arguments,
+            addToBackStack,
+            allowStateLoss,
+            transactionType)
     }
 
     fun addFragment(
@@ -152,10 +162,16 @@ open class BaseActivity : AppCompatActivity() {
         allowStateLoss: Boolean = true,
         transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
     ) {
-        fragment.apply {
-            arguments?.let { setArguments(it) }
+        arguments?.let {
+            fragment.arguments = it
         }
-        createFragmentTransaction(containerId, fragment::class.java.name, fragment, addToBackStack, transactionType).apply {
+        createFragmentTransaction(
+            containerId,
+            fragment::class.java.name,
+            fragment,
+            addToBackStack,
+            transactionType
+        ).apply {
             if (allowStateLoss) commitAllowingStateLoss() else commit()
         }
     }
@@ -167,30 +183,59 @@ open class BaseActivity : AppCompatActivity() {
         addToBackStack: Boolean = false,
         transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
     ): FragmentTransaction {
-        return supportFragmentManager.beginTransaction().apply {
-            when(transactionType) {
-                FragmentTransactionType.ADD -> add(containerId, fragment, tag)
-                FragmentTransactionType.REPLACE -> replace(containerId, fragment, tag)
+        return supportFragmentManager.beginTransaction()
+            .apply {
+                when (transactionType) {
+                    FragmentTransactionType.ADD -> add(containerId, fragment, tag)
+                    FragmentTransactionType.REPLACE -> replace(containerId, fragment, tag)
+                }
+                if (addToBackStack) addToBackStack(tag)
             }
-            if (addToBackStack) addToBackStack(tag)
+    }
+
+    fun popBackStack() {
+        supportFragmentManager.popBackStack()
+    }
+
+    fun popBackStackImmediate(): Boolean {
+        return supportFragmentManager.popBackStackImmediate()
+    }
+
+    fun popBackStackInclusive(id: Int) {
+        return supportFragmentManager.popBackStack(
+            id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    }
+
+    fun popBackStackInclusive(name: String?) {
+        return supportFragmentManager.popBackStack(
+            name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    }
+
+    fun popBackStackImmediateInclusive(id: Int): Boolean {
+        return supportFragmentManager.popBackStackImmediate(
+            id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    }
+
+    fun popBackStackImmediateInclusive(name: String?): Boolean {
+        return supportFragmentManager.popBackStackImmediate(
+            name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    }
+
+    inline fun <reified T : Fragment> findFragment(@IdRes containerId: Int): Optional<T> {
+        val fragment = supportFragmentManager.findFragmentById(containerId)
+        return if (fragment is T?) {
+            Optional.ofNullable(fragment)
+        } else {
+            Optional.empty()
         }
     }
 
-    fun popBackStack() =
-        supportFragmentManager.popBackStack()
-
-    fun popBackStackImmediate(): Boolean =
-        supportFragmentManager.popBackStackImmediate()
-
-    fun popBackStackInclusive(id: Int) =
-        supportFragmentManager.popBackStack(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-
-    fun popBackStackInclusive(name: String?) =
-        supportFragmentManager.popBackStack(name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-
-    fun popBackStackImmediateInclusive(id: Int): Boolean =
-        supportFragmentManager.popBackStackImmediate(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-
-    fun popBackStackImmediateInclusive(name: String?): Boolean =
-        supportFragmentManager.popBackStackImmediate(name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    inline fun <reified T : Fragment> findFragment(clazz: Class<T>): Optional<T> {
+        val fragment = supportFragmentManager.findFragmentByTag(clazz.name)
+        return if (fragment is T?) {
+            Optional.ofNullable(fragment)
+        } else {
+            Optional.empty()
+        }
+    }
 }

@@ -1,9 +1,9 @@
 package ua.com.wl.archetype.mvvm.livebus
 
-import androidx.lifecycle.LifecycleOwner
 import java.util.concurrent.atomic.AtomicBoolean
 
 import androidx.lifecycle.Observer
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 
 import ua.com.wl.archetype.utils.concurrentHashMapOf
@@ -17,15 +17,13 @@ class LiveEvent<T>: MutableLiveData<T>() {
     private val pendingObservers = concurrentHashMapOf<Observer<in T>, Pair<Observer<in T>, AtomicBoolean>>()
 
     override fun observe(owner: LifecycleOwner, observer: Observer<in T>) {
-        val interceptor: Observer<in T> = object : Observer<T> {
+        val interceptor = object : Observer<T> {
             override fun onChanged(t: T?) {
                 var observeToTrigger: Observer<in T>? = null
                 synchronized(pendingObservers) {
-                    if (pendingObservers.containsKey(this)) {
-                        pendingObservers[this]?.let { pair ->
-                            if (pair.second.compareAndSet(true, false)) {
-                                observeToTrigger = pair.first
-                            }
+                    pendingObservers[this]?.let { pair ->
+                        if (pair.second.compareAndSet(true, false)) {
+                            observeToTrigger = pair.first
                         }
                     }
                 }
@@ -51,15 +49,6 @@ class LiveEvent<T>: MutableLiveData<T>() {
         }
     }
 
-    override fun postValue(value: T?) {
-        synchronized(pendingObservers) {
-            pendingObservers.values.forEach {
-                it.second.set(true)
-            }
-        }
-        super.postValue(value)
-    }
-
     override fun setValue(value: T?) {
         synchronized(pendingObservers) {
             pendingObservers.values.forEach {
@@ -67,6 +56,15 @@ class LiveEvent<T>: MutableLiveData<T>() {
             }
         }
         super.setValue(value)
+    }
+
+    override fun postValue(value: T?) {
+        synchronized(pendingObservers) {
+            pendingObservers.values.forEach {
+                it.second.set(true)
+            }
+        }
+        super.postValue(value)
     }
 
     fun call() {

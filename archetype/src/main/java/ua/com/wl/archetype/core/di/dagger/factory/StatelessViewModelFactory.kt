@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider
  */
 
 @Singleton
-open class ViewModelFactory @Inject constructor(
+open class StatelessViewModelFactory @Inject constructor(
     private val providers: Map<Class<out ViewModel>, Provider<ViewModel>>
 ): ViewModelProvider.Factory {
 

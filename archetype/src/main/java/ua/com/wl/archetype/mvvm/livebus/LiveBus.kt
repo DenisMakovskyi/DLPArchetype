@@ -1,5 +1,3 @@
-@file:Suppress("UNCHECKED_CAST")
-
 package ua.com.wl.archetype.mvvm.livebus
 
 import androidx.lifecycle.Observer
