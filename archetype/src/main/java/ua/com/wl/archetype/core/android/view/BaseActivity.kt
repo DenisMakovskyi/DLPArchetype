@@ -11,15 +11,12 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 
-import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
-
+import androidx.annotation.DrawableRes
+import androidx.fragment.app.*
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
 
 import ua.com.wl.archetype.utils.has
 import ua.com.wl.archetype.utils.Optional
@@ -76,33 +73,31 @@ open class BaseActivity : AppCompatActivity() {
         }
     }
 
-    fun startActivity(
-        clazz: Class<out Activity>,
+    inline fun <reified A: Activity> startActivity(
         bundle: Bundle? = null,
         extras: Intent? = null
     ) {
-        val intent = createActivityLaunchIntent(clazz).apply {
+        val intent = createActivityLaunchIntent<A>().apply {
             bundle?.let { putExtras(it) }
             extras?.let { putExtras(it) }
         }
         startActivity(intent)
     }
 
-    fun startActivityForResult(
+    inline fun <reified A: Activity> startActivityForResult(
         code: Int,
-        clazz: Class<out Activity>,
         bundle: Bundle? = null,
         extras: Intent? = null
     ) {
-        val intent = createActivityLaunchIntent(clazz).apply {
+        val intent = createActivityLaunchIntent<A>().apply {
             bundle?.let { putExtras(it) }
             extras?.let { putExtras(it) }
         }
         startActivityForResult(intent, code)
     }
 
-    fun createActivityLaunchIntent(clazz: Class<out Activity>): Intent {
-        return Intent(this, clazz)
+    inline fun <reified A: Activity> createActivityLaunchIntent(): Intent {
+        return Intent(this, A::class.java)
     }
 
     @Deprecated(
@@ -110,84 +105,73 @@ open class BaseActivity : AppCompatActivity() {
         message = "BaseActivity::isServiceRunning - this method is only intended for debugging or implementing service management type user interfaces",
         replaceWith = ReplaceWith("", "")
     )
-    fun <T : Service> isServiceRunning(clazz: Class<T>): Boolean {
+    inline fun <reified S : Service> isServiceRunning(): Boolean {
         val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val runningServices = activityManager.getRunningServices(Int.MAX_VALUE)
-        return runningServices.has { clazz.name == it.service.className }
+        return runningServices.has { S::class.java.name == it.service.className }
     }
 
-    fun stopService(clazz: Class<out Service>): Boolean {
-        return stopService(Intent(this, clazz))
+    inline fun <reified S: Service> stopService(): Boolean {
+        return stopService(Intent(this, S::class.java))
     }
 
-    fun startService(clazz: Class<out Service>): ComponentName? {
-        return startService(Intent(this, clazz))
+    inline fun <reified S: Service> startService(): ComponentName? {
+        return startService(Intent(this, S::class.java))
     }
 
-    fun restartService(cls: Class<out Service>): ComponentName? {
-        val isStopped = stopService(cls)
-        return if (isStopped) startService(cls) else null
+    inline fun <reified S: Service> restartService(): ComponentName? {
+        val isStopped = stopService<S>()
+        return if (isStopped) startService<S>() else null
     }
 
-    fun bindService(
+    inline fun <reified S: Service> bindService(
         flags: Int,
-        clazz: Class<out Service>,
         serviceConnection: ServiceConnection
     ): Boolean {
-        return bindService(Intent(this, clazz), serviceConnection, flags)
+        return bindService(
+            Intent(this, S::class.java), serviceConnection, flags)
     }
 
-    fun addFragment(
+    inline fun <reified F: Fragment> addFragment(
         @IdRes containerId: Int,
-        clazz: Class<out Fragment>,
-        arguments: Bundle? = null,
+        tag: String? = F::class.java.name,
+        args: Bundle? = null,
         addToBackStack: Boolean = false,
-        allowStateLoss: Boolean = true,
-        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
+        allowStateLoss: Boolean = true
     ) {
-        addFragment(
-            containerId,
-            clazz.newInstance(),
-            arguments,
-            addToBackStack,
-            allowStateLoss,
-            transactionType)
-    }
-
-    fun addFragment(
-        @IdRes containerId: Int,
-        fragment: Fragment,
-        arguments: Bundle? = null,
-        addToBackStack: Boolean = false,
-        allowStateLoss: Boolean = true,
-        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
-    ) {
-        arguments?.let {
-            fragment.arguments = it
-        }
-        createFragmentTransaction(
-            containerId,
-            fragment::class.java.name,
-            fragment,
-            addToBackStack,
-            transactionType
+        beginFragmentTransaction<F>(
+            containerId, tag, args, addToBackStack, FragmentTransactionType.ADD
         ).apply {
-            if (allowStateLoss) commitAllowingStateLoss() else commit()
+            if (allowStateLoss) commit() else commitNowAllowingStateLoss()
         }
     }
 
-    fun createFragmentTransaction(
+    inline fun <reified F: Fragment> replaceFragment(
         @IdRes containerId: Int,
-        tag: String,
-        fragment: Fragment,
+        tag: String? = F::class.java.name,
+        args: Bundle? = null,
+        addToBackStack: Boolean = false,
+        allowStateLoss: Boolean = true
+    ) {
+        beginFragmentTransaction<F>(
+            containerId, tag, args, addToBackStack, FragmentTransactionType.REPLACE
+        ).apply {
+            if (allowStateLoss) commit() else commitNowAllowingStateLoss()
+        }
+    }
+
+    inline fun <reified F: Fragment> beginFragmentTransaction(
+        @IdRes containerId: Int,
+        tag: String? = null,
+        args: Bundle? = null,
         addToBackStack: Boolean = false,
         transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
     ): FragmentTransaction {
         return supportFragmentManager.beginTransaction()
             .apply {
                 when (transactionType) {
-                    FragmentTransactionType.ADD -> add(containerId, fragment, tag)
-                    FragmentTransactionType.REPLACE -> replace(containerId, fragment, tag)
+                    FragmentTransactionType.ADD -> add<F>(containerId, tag, args)
+                    FragmentTransactionType.REPLACE -> replace<F>(containerId, tag, args)
                 }
                 if (addToBackStack) addToBackStack(tag)
             }
