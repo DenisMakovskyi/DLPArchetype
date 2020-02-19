@@ -1,4 +1,4 @@
-package ua.com.wl.archetype.core.android.view
+package ua.com.wl.archetype.core.android.view.fragment.dialog
 
 import android.app.Activity
 import android.app.ActivityManager
@@ -7,17 +7,13 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.view.View
 
 import androidx.annotation.IdRes
-import androidx.annotation.DrawableRes
 import androidx.fragment.app.*
-import androidx.appcompat.widget.Toolbar
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 
+import ua.com.wl.archetype.core.android.view.activity.BaseActivity
+import ua.com.wl.archetype.core.android.view.fragment.FragmentTransactionType
 import ua.com.wl.archetype.utils.has
 import ua.com.wl.archetype.utils.Optional
 
@@ -25,53 +21,10 @@ import ua.com.wl.archetype.utils.Optional
  * @author Denis Makovskyi
  */
 
-open class BaseActivity : AppCompatActivity() {
+open class BaseDialogFragment: DialogFragment() {
 
-    companion object {
-        init {
-            AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        }
-    }
-
-    fun setupToolbar(
-        toolbar: Toolbar,
-        showHome: Boolean = false,
-        homeAsUp: Boolean = false,
-        showLogo: Boolean = false,
-        showTitle: Boolean = false,
-        showCustom: Boolean = false,
-        @DrawableRes iconResId: Int = 0,
-        iconDrawable: Drawable? = null,
-        @DrawableRes logoResId: Int = 0,
-        logoDrawable: Drawable? = null,
-        toolbarTitleText: String? = null,
-        onNavigationClickListener: View.OnClickListener? = null
-    ) {
-        setSupportActionBar(toolbar)
-        supportActionBar?.apply {
-            setDisplayShowHomeEnabled(showHome)
-            setDisplayHomeAsUpEnabled(homeAsUp)
-            setDisplayUseLogoEnabled(showLogo)
-            setDisplayShowTitleEnabled(showTitle)
-            setDisplayShowCustomEnabled(showCustom)
-        }
-        toolbar.apply {
-            // - nav icon
-            navigationIcon = iconDrawable
-            if (iconResId != 0) {
-                setNavigationIcon(iconResId)
-            }
-            // - toolbar logo
-            logo = logoDrawable
-            if (logoResId != 0) {
-                setLogo(logoResId)
-            }
-            // - toolbar title
-            title = toolbarTitleText
-            // - nav click listener
-            setNavigationOnClickListener(onNavigationClickListener)
-        }
-    }
+    val baseActivity: BaseActivity?
+        get() = if (activity is BaseActivity) activity as BaseActivity else null
 
     inline fun <reified A: Activity> startActivity(
         bundle: Bundle? = null,
@@ -97,26 +50,26 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     inline fun <reified A: Activity> createActivityLaunchIntent(): Intent {
-        return Intent(this, A::class.java)
+        return Intent(activity, A::class.java)
     }
 
     @Deprecated(
         level = DeprecationLevel.WARNING,
-        message = "BaseActivity::isServiceRunning - this method is only intended for debugging or implementing service management type user interfaces",
+        message = "BaseDialogFragment::isServiceRunning - this method is only intended for debugging or implementing service management type user interfaces",
         replaceWith = ReplaceWith("", "")
     )
     inline fun <reified S : Service> isServiceRunning(): Boolean {
-        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val activityManager = requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val runningServices = activityManager.getRunningServices(Int.MAX_VALUE)
         return runningServices.has { S::class.java.name == it.service.className }
     }
 
     inline fun <reified S: Service> stopService(): Boolean {
-        return stopService(Intent(this, S::class.java))
+        return activity?.stopService(Intent(activity, S::class.java)) ?: false
     }
 
     inline fun <reified S: Service> startService(): ComponentName? {
-        return startService(Intent(this, S::class.java))
+        return activity?.startService(Intent(activity, S::class.java))
     }
 
     inline fun <reified S: Service> restartService(): ComponentName? {
@@ -128,8 +81,12 @@ open class BaseActivity : AppCompatActivity() {
         flags: Int,
         serviceConnection: ServiceConnection
     ): Boolean {
-        return bindService(
-            Intent(this, S::class.java), serviceConnection, flags)
+        return activity?.bindService(
+            Intent(activity, S::class.java), serviceConnection, flags) ?: false
+    }
+
+    fun unbindService(serviceConnection: ServiceConnection) {
+        activity?.unbindService(serviceConnection)
     }
 
     inline fun <reified F: Fragment> addFragment(
@@ -140,7 +97,8 @@ open class BaseActivity : AppCompatActivity() {
         allowStateLoss: Boolean = true
     ) {
         beginFragmentTransaction<F>(
-            containerId, tag, args, addToBackStack, FragmentTransactionType.ADD
+            containerId, tag, args, addToBackStack,
+            FragmentTransactionType.ADD
         ).apply {
             if (allowStateLoss) commit() else commitNowAllowingStateLoss()
         }
@@ -154,7 +112,8 @@ open class BaseActivity : AppCompatActivity() {
         allowStateLoss: Boolean = true
     ) {
         beginFragmentTransaction<F>(
-            containerId, tag, args, addToBackStack, FragmentTransactionType.REPLACE
+            containerId, tag, args, addToBackStack,
+            FragmentTransactionType.REPLACE
         ).apply {
             if (allowStateLoss) commit() else commitNowAllowingStateLoss()
         }
@@ -164,10 +123,9 @@ open class BaseActivity : AppCompatActivity() {
         @IdRes containerId: Int,
         tag: String? = null,
         args: Bundle? = null,
-        addToBackStack: Boolean = false,
-        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
+        addToBackStack: Boolean = false, transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
     ): FragmentTransaction {
-        return supportFragmentManager.beginTransaction()
+        return parentFragmentManager.beginTransaction()
             .apply {
                 when (transactionType) {
                     FragmentTransactionType.ADD -> add<F>(containerId, tag, args)
@@ -178,35 +136,35 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     fun popBackStack() {
-        supportFragmentManager.popBackStack()
+        parentFragmentManager.popBackStack()
     }
 
     fun popBackStackImmediate(): Boolean {
-        return supportFragmentManager.popBackStackImmediate()
+        return parentFragmentManager.popBackStackImmediate()
     }
 
     fun popBackStackInclusive(id: Int) {
-        return supportFragmentManager.popBackStack(
+        return parentFragmentManager.popBackStack(
             id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
     fun popBackStackInclusive(name: String?) {
-        return supportFragmentManager.popBackStack(
+        return parentFragmentManager.popBackStack(
             name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
     fun popBackStackImmediateInclusive(id: Int): Boolean {
-        return supportFragmentManager.popBackStackImmediate(
+        return parentFragmentManager.popBackStackImmediate(
             id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
     fun popBackStackImmediateInclusive(name: String?): Boolean {
-        return supportFragmentManager.popBackStackImmediate(
+        return parentFragmentManager.popBackStackImmediate(
             name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
     inline fun <reified T : Fragment> findFragment(@IdRes containerId: Int): Optional<T> {
-        val fragment = supportFragmentManager.findFragmentById(containerId)
+        val fragment = parentFragmentManager.findFragmentById(containerId)
         return if (fragment is T?) {
             Optional.ofNullable(fragment)
         } else {
@@ -215,7 +173,7 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     inline fun <reified T : Fragment> findFragment(clazz: Class<T>): Optional<T> {
-        val fragment = supportFragmentManager.findFragmentByTag(clazz.name)
+        val fragment = parentFragmentManager.findFragmentByTag(clazz.name)
         return if (fragment is T?) {
             Optional.ofNullable(fragment)
         } else {

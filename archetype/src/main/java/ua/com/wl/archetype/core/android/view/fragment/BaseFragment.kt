@@ -1,4 +1,4 @@
-package ua.com.wl.archetype.core.android.view
+package ua.com.wl.archetype.core.android.view.fragment
 
 import android.app.Activity
 import android.app.ActivityManager
@@ -17,6 +17,7 @@ import androidx.fragment.app.*
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
 
+import ua.com.wl.archetype.core.android.view.activity.BaseActivity
 import ua.com.wl.archetype.utils.has
 import ua.com.wl.archetype.utils.Optional
 
@@ -144,7 +145,8 @@ open class BaseFragment : Fragment() {
         allowStateLoss: Boolean = true
     ) {
         beginFragmentTransaction<F>(
-            containerId, tag, args, addToBackStack, FragmentTransactionType.ADD
+            containerId, tag, args, addToBackStack,
+            FragmentTransactionType.ADD
         ).apply {
             if (allowStateLoss) commit() else commitNowAllowingStateLoss()
         }
@@ -158,7 +160,8 @@ open class BaseFragment : Fragment() {
         allowStateLoss: Boolean = true
     ) {
         beginFragmentTransaction<F>(
-            containerId, tag, args, addToBackStack, FragmentTransactionType.REPLACE
+            containerId, tag, args, addToBackStack,
+            FragmentTransactionType.REPLACE
         ).apply {
             if (allowStateLoss) commit() else commitNowAllowingStateLoss()
         }

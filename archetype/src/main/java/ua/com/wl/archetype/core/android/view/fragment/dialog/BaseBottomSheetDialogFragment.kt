@@ -1,4 +1,4 @@
-package ua.com.wl.archetype.core.android.view
+package ua.com.wl.archetype.core.android.view.fragment.dialog
 
 import android.app.Activity
 import android.app.ActivityManager
@@ -14,6 +14,8 @@ import androidx.fragment.app.*
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
+import ua.com.wl.archetype.core.android.view.activity.BaseActivity
+import ua.com.wl.archetype.core.android.view.fragment.FragmentTransactionType
 import ua.com.wl.archetype.utils.Optional
 import ua.com.wl.archetype.utils.has
 
@@ -97,7 +99,8 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         allowStateLoss: Boolean = true
     ) {
         beginFragmentTransaction<F>(
-            containerId, tag, args, addToBackStack, FragmentTransactionType.ADD
+            containerId, tag, args, addToBackStack,
+            FragmentTransactionType.ADD
         ).apply {
             if (allowStateLoss) commit() else commitNowAllowingStateLoss()
         }
@@ -111,7 +114,8 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         allowStateLoss: Boolean = true
     ) {
         beginFragmentTransaction<F>(
-            containerId, tag, args, addToBackStack, FragmentTransactionType.REPLACE
+            containerId, tag, args, addToBackStack,
+            FragmentTransactionType.REPLACE
         ).apply {
             if (allowStateLoss) commit() else commitNowAllowingStateLoss()
         }
@@ -121,8 +125,7 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         @IdRes containerId: Int,
         tag: String? = null,
         args: Bundle? = null,
-        addToBackStack: Boolean = false,
-        transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
+        addToBackStack: Boolean = false, transactionType: FragmentTransactionType = FragmentTransactionType.REPLACE
     ): FragmentTransaction {
         return childFragmentManager.beginTransaction()
             .apply {

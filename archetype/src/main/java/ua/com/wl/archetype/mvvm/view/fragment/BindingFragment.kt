@@ -9,7 +9,7 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 
-import ua.com.wl.archetype.core.android.view.BaseFragment
+import ua.com.wl.archetype.core.android.view.fragment.BaseFragment
 
 /**
  * @author Denis Makovskyi

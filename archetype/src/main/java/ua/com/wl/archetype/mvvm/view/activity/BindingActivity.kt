@@ -11,7 +11,7 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 
-import ua.com.wl.archetype.core.android.view.BaseActivity
+import ua.com.wl.archetype.core.android.view.activity.BaseActivity
 
 /**
  * @author Denis Makovskyi
