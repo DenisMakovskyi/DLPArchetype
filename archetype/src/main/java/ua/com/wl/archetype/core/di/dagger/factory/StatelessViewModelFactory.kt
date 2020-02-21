@@ -12,11 +12,11 @@ import androidx.lifecycle.ViewModelProvider
  */
 
 @Singleton
-open class StatelessViewModelFactory @Inject constructor(
-    private val providers: Map<Class<out ViewModel>, Provider<ViewModel>>
+class StatelessViewModelFactory @Inject constructor(
+    private val providers: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
 ): ViewModelProvider.Factory {
 
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         var provider = providers[modelClass]
         if (provider == null) {
             for (entry in providers.entries) {
@@ -36,5 +36,4 @@ open class StatelessViewModelFactory @Inject constructor(
             throw RuntimeException(e)
         }
     }
-
 }

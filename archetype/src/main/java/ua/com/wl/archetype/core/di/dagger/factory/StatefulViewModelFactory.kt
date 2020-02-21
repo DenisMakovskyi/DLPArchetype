@@ -1,8 +1,8 @@
 package ua.com.wl.archetype.core.di.dagger.factory
 
-import android.os.Bundle
-
 import javax.inject.Inject
+
+import android.os.Bundle
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.SavedStateHandle
@@ -21,7 +21,7 @@ class StatefulViewModelFactory @Inject constructor(
 
     fun create(owner: SavedStateRegistryOwner, defaultArgs: Bundle? = null): AbstractSavedStateViewModelFactory {
         return object : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
-            override fun <T : ViewModel?> create(
+            override fun <T : ViewModel> create(
                 key: String,
                 modelClass: Class<T>,
                 handle: SavedStateHandle
