@@ -90,7 +90,8 @@ abstract class BindingBottomSheetDialogFragment<B : ViewDataBinding, VM : Dialog
 
     override fun onDestroy() {
         requestViewModel()?.onDestroy()
-        lifecycle.removeObserver(requireViewModel())
+        val vm = requestViewModel()
+        if (vm != null) lifecycle.removeObserver(vm)
         super.onDestroy()
     }
 

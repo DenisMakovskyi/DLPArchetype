@@ -90,7 +90,8 @@ abstract class BindingDialogFragment <B : ViewDataBinding, VM : DialogFragmentLi
 
     override fun onDestroy() {
         requestViewModel()?.onDestroy()
-        lifecycle.removeObserver(requireViewModel())
+        val vm = requestViewModel()
+        if (vm != null) lifecycle.removeObserver(vm)
         super.onDestroy()
     }
 

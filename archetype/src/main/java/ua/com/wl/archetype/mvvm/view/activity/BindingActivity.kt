@@ -87,7 +87,8 @@ abstract class BindingActivity<B : ViewDataBinding, VM : ActivityLifecycleCallba
 
     override fun onDestroy() {
         requestViewModel()?.onDestroy()
-        lifecycle.removeObserver(requireViewModel())
+        val vm = requestViewModel()
+        if (vm != null) lifecycle.removeObserver(vm)
         super.onDestroy()
     }
 
@@ -107,7 +108,7 @@ abstract class BindingActivity<B : ViewDataBinding, VM : ActivityLifecycleCallba
     }
 
     override fun onBackPressed() {
-        if (!requireViewModel().onBackPressed()) super.onBackPressed()
+        if (requestViewModel()?.onBackPressed() == false) super.onBackPressed()
     }
 
     abstract fun onBind(savedInstanceState: Bundle?): VM
