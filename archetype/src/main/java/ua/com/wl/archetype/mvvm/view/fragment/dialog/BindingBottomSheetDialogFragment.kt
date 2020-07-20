@@ -84,7 +84,7 @@ abstract class BindingBottomSheetDialogFragment<B : ViewDataBinding, VM : Dialog
     }
 
     override fun onDestroyView() {
-        requestViewModel()?.onDestroy()
+        requestViewModel()?.onDestroyView()
         super.onDestroyView()
     }
 

@@ -84,7 +84,7 @@ abstract class BindingDialogFragment <B : ViewDataBinding, VM : DialogFragmentLi
     }
 
     override fun onDestroyView() {
-        requestViewModel()?.onDestroy()
+        requestViewModel()?.onDestroyView()
         super.onDestroyView()
     }
 

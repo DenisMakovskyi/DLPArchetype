@@ -92,7 +92,7 @@ abstract class BindingFragment<B : ViewDataBinding, VM : FragmentLifecycleCallba
     }
 
     override fun onDestroyView() {
-        requestViewModel()?.onDestroy()
+        requestViewModel()?.onDestroyView()
         super.onDestroyView()
     }
 
