@@ -5,7 +5,7 @@ import java.util.concurrent.*
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 interface ThreadExecutor : Executor {
 
     class JobThreadFactory : ThreadFactory {

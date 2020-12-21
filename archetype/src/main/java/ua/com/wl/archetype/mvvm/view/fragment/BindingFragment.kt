@@ -14,7 +14,7 @@ import ua.com.wl.archetype.core.android.view.fragment.BaseFragment
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 abstract class BindingFragment<B : ViewDataBinding, VM : FragmentLifecycleCallbacks> : BaseFragment() {
 
     var binding: B? = null

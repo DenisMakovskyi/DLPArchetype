@@ -8,7 +8,7 @@ import ua.com.wl.archetype.utils.getOrElse
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 class LiveBus {
 
     private val eventMap = hashMapOf<Class<out Event>, LiveEvent<out Event>>()

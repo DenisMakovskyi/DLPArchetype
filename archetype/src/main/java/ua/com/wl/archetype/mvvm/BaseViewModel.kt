@@ -10,7 +10,7 @@ import ua.com.wl.archetype.mvvm.livebus.LiveBus
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 open class BaseViewModel(application: Application): ObservableViewModel(application) {
 
     val liveBus = LiveBus()

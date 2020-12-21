@@ -9,7 +9,7 @@ import ua.com.wl.archetype.mvvm.BaseViewModel
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 open class StatefulActivityViewModel(
     application: Application,
     protected val savedStateHandle: SavedStateHandle

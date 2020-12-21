@@ -24,7 +24,7 @@ import ua.com.wl.archetype.utils.Optional
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 open class BaseFragment : Fragment() {
 
     val baseActivity: BaseActivity?

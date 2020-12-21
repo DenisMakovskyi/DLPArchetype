@@ -22,7 +22,7 @@ import ua.com.wl.archetype.utils.has
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     val baseActivity: BaseActivity?

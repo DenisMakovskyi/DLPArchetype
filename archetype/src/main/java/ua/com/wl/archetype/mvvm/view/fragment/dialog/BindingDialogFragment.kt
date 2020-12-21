@@ -16,7 +16,7 @@ import ua.com.wl.archetype.core.android.view.fragment.dialog.BaseDialogFragment
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 abstract class BindingDialogFragment <B : ViewDataBinding, VM : DialogFragmentLifecycleCallbacks> : BaseDialogFragment() {
 
     var binding: B? = null

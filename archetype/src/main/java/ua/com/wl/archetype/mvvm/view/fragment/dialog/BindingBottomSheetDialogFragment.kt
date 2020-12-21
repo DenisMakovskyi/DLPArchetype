@@ -16,7 +16,7 @@ import ua.com.wl.archetype.core.android.view.fragment.dialog.BaseBottomSheetDial
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 abstract class BindingBottomSheetDialogFragment<B : ViewDataBinding, VM : DialogFragmentLifecycleCallbacks> : BaseBottomSheetDialogFragment() {
 
     var binding: B? = null

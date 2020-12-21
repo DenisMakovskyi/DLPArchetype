@@ -3,7 +3,7 @@ package ua.com.wl.archetype.utils
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 class Optional<T> private constructor(val value: T? = null) {
 
     companion object {

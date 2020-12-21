@@ -7,12 +7,14 @@ import androidx.annotation.RestrictTo
  */
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@Deprecated("Moved to DLPCore.")
 inline fun <T> Iterable<T>.has(predicate: (T) -> Boolean): Boolean {
     for (element in this) if (predicate(element)) return true
     return false
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@Deprecated("Moved to DLPCore.")
 fun <K, V> Map<K, V>.getOrElse(key: K, defaultValue: V): V {
     return this[key] ?: defaultValue
 }

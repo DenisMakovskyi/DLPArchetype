@@ -10,7 +10,7 @@ import androidx.lifecycle.LifecycleObserver
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 interface FragmentLifecycleCallbacks : LifecycleObserver {
 
     fun onViewCreated() {}
