@@ -8,7 +8,7 @@ import androidx.lifecycle.LifecycleObserver
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 interface DialogFragmentLifecycleCallbacks : LifecycleObserver {
 
     fun onViewCreated() {}

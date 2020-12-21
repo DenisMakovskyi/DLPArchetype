@@ -8,7 +8,7 @@ import android.os.Looper
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 class MainThreadExecutor : Executor {
 
     companion object {

@@ -11,7 +11,7 @@ import ua.com.wl.archetype.utils.concurrentHashMapOf
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 class LiveEvent<T>: MutableLiveData<T>() {
 
     private val pendingObservers = concurrentHashMapOf<Observer<in T>, Pair<Observer<in T>, AtomicBoolean>>()

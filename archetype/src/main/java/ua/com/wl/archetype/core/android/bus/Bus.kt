@@ -6,7 +6,7 @@ import io.reactivex.subjects.PublishSubject
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 object Bus {
     
     val publisher = PublishSubject.create<BusEvent>()

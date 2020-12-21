@@ -11,7 +11,7 @@ import androidx.lifecycle.LifecycleObserver
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 interface ActivityLifecycleCallbacks : LifecycleObserver {
 
     fun onStart() {}

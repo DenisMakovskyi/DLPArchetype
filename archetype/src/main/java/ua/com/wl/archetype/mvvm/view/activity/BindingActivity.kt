@@ -16,7 +16,7 @@ import ua.com.wl.archetype.core.android.view.activity.BaseActivity
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 abstract class BindingActivity<B : ViewDataBinding, VM : ActivityLifecycleCallbacks> : BaseActivity() {
 
     var binding: B? = null

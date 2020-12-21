@@ -6,7 +6,7 @@ import android.content.SharedPreferences
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 abstract class BasePreferences(
         context: Context,
         name: String, mode:

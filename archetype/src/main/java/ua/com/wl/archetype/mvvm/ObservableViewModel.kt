@@ -9,7 +9,7 @@ import androidx.databinding.PropertyChangeRegistry
 /**
  * @author Denis Makovskyi
  */
-
+@Deprecated("Moved to DLPCore.")
 open class ObservableViewModel(application: Application) : AndroidViewModel(application), Observable {
 
     @Transient
